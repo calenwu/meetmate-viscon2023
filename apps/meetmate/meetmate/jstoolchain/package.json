@@ -1,0 +1,25 @@
+{
+  "scripts": {
+      "tailwind-watch": "tailwindcss -i css/tailwind.css -o ../../static/css/tailwind.css --watch",
+      "tailwind-build": "tailwindcss -i css/tailwind.css -o ../../static/css/tailwind.css --minify"
+    },
+  "dependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.0",
+    "@yaireo/tagify": "^4.9.8",
+    "autoprefixer": "^10.4.4",
+    "cropperjs": "^1.5.12",
+    "postcss-cli": "^9.1.0"
+  },
+  "devDependencies": {
+    "cssnano": "^5.1.7",
+    "postcss": "^8.4.13",
+    "tailwindcss": "^3.3.3"
+  },
+  "name": "jstoolchain",
+  "version": "1.0.0",
+  "main": "postcss.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

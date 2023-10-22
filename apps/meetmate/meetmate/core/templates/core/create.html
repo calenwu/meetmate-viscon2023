@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block header %}
+{% endblock %}
+{% block content %}
+	<div class='h-full flex flex-col justify-center'>
+		<div class='flex items-center justify-center mb-8'>
+			<h1 class='mr-4'>
+				🗓
+			</h1>
+			<h2 class='text-2xl font-bold'>
+				Find the perfect timeslot for your event
+			</h2>
+		</div>
+		<form action='.' class='flex flex-col mb-32' method='POST'>
+			{% csrf_token %}
+		  {% if form.non_field_errors %}
+		    <div class='w-full bg-white border-l-4 border-red-400 p-3 mb-6 rounded shadow'>
+		      <div class='flex'>
+		        <div class='flex items-center mr-3'>
+		          <i class='fancy-alert-icon text-red-400 fas fa-exclamation-circle'></i>
+		        </div>
+		        <div>
+		          {% for error in form.non_field_errors %}
+		            <div>
+									{{ error }}
+		            </div>
+		          {% endfor %}
+		        </div>
+		      </div>
+		    </div>
+		  {% endif %}
+
+	    <div class='form-label-group-lg {% if form.name.errors %}error{% endif %}'>
+	      <input name='{{ form.name.html_name }}' id='{{ form.name.id_for_label }}'
+	        placeholder='Name of event' class='bg-white input-white-bg shadow shadow-black'
+	        {% if form.name.value %}value='{{ form.name.value }}'{% endif %}
+	        onkeydown='removeError(this);'
+	        required/>
+	      <label for='{{ form.name.id_for_label }}'>
+	        Name of event
+	      </label>
+	    </div>
+	    <div class='mb-6 text-red-400'>
+	      {% for error in form.name.errors %}
+	        <div class='text-sm mt-1'>
+	          {{ error }}
+	        </div>
+	      {% endfor %}
+	    </div>
+
+	    <div class='form-label-group-lg {% if form.location.errors %}error{% endif %}'>
+	      <input name='{{ form.location.html_name }}' id='{{ form.location.id_for_label }}'
+	        placeholder='Location' class='bg-white input-white-bg shadow shadow-black'
+	        {% if form.location.value %}value='{{ form.location.value }}'{% endif %}
+	        onkeydown='removeError(this);'
+	        required/>
+	      <label for='{{ form.location.id_for_label }}'>
+	        Location
+	      </label>
+	    </div>
+	    <div class='mb-6 text-red-400'>
+	      {% for error in form.location.errors %}
+	        <div class='text-sm mt-1'>
+	          {{ error }}
+	        </div>
+	      {% endfor %}
+	    </div>
+
+			<div class='form-label-group-lg {% if form.duration.errors %}error{% endif %}'>
+				<input name='{{ form.duration.html_name }}' id='{{ form.duration.id_for_label }}'
+				  placeholder='Duration' class='bg-white input-white-bg shadow shadow-black'
+				  {% if form.name.value %}value='{{ form.duration.value }}'{% endif %}
+				  onkeydown='removeError(this);'
+				  	type='number'
+					min='1'
+				  required/>
+				<label for='{{ form.duration.id_for_label }}'>
+				  Duration (hrs)
+				</label>
+		  </div>
+
+			<div class='mb-6 text-red-400'>
+			{% for error in form.duration.errors %}
+			  <div class='text-sm mt-1'>
+				{{ error }}
+			  </div>
+			{% endfor %}
+		  </div>
+
+			<div class='grid grid-cols-2 gap-4'>
+				<div>
+				  <div class='form-label-group-lg {% if form.min_time.errors %}error{% endif %}'>
+						<input name='{{ form.min_time.html_name }}' id='{{ form.min_time.id_for_label }}'
+						  placeholder='Earliest (hr)' class='bg-white input-white-bg shadow shadow-black'
+						  value='0'
+						  onkeydown='removeError(this);'
+							type='number'
+							min='0'
+						  max='23'
+						  onchange="addLeadingZero(this);"
+						  required/>
+						<label for='{{ form.min_time.id_for_label }}'>
+						  Earliest (hr)
+						</label>
+				  </div>
+				  <div class='mb-6 text-red-400'>
+					{% for error in form.min_time.errors %}
+					  <div class='text-sm mt-1'>
+						{{ error }}
+					  </div>
+					{% endfor %}
+			  </div>
+				</div>
+				<div>
+				  <div class='form-label-group-lg {% if form.max_time.errors %}error{% endif %}'>
+						<input name='{{ form.max_time.html_name }}' id='{{ form.max_time.id_for_label }}'
+						  placeholder='Latest (hr)' class='bg-white input-white-bg shadow shadow-black'
+						  value='23'
+							type='number'
+							min='0'
+						  max='24'
+						  onkeydown='removeError(this);'
+						  onchange="addLeadingZero(this);"
+						  required/>
+						<label for='{{ form.max_time.id_for_label }}'>
+						  Latest (hr)
+						</label>
+					  </div>
+				  <div class='mb-6 text-red-400'>
+						{% for error in form.max_time.errors %}
+						  <div class='text-sm mt-1'>
+							{{ error }}
+						  </div>
+						{% endfor %}
+				  </div>
+				</div>
+			</div>
+
+	    <div class='form-label-group-lg {% if form.description.errors %}error{% endif %}'>
+				<textarea name='{{ form.description.html_name }}' id='{{ form.description.id_for_label }}'
+	        placeholder='lukeskywalker@gmail.com' class='w-full min-h-[160px] bg-white input-white-bg shadow shadow-black'
+	        {% if form.description.value %}value='{{ form.description.value }}'{% endif %}
+	        onkeydown='removeError(this);'></textarea>
+				<label for='{{ form.description.id_for_label }}'>Description</label>
+			</div>
+
+			<div class='mb-6 text-red-400'>
+	      {% for error in form.description.errors %}
+	        <div class='text-sm mt-1'>
+	          {{ error }}
+	        </div>
+	      {% endfor %}
+	    </div>
+
+		<button class='rounded border text-center cursor-pointer transition-colors
+				shadow shadow-black
+				text-black bg-primary-400 hover:bg-primary-100 border-2 border-black
+				p-4'>
+			Create Event
+		</button>
+		</form>
+	</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load core_template_tags %}
+{% block header %}
+{% endblock %}
+{% block content %}
+	<section>
+		<a href='{% url "core:detail" id=object.id %}'
+				class='inline-block rounded-lg w-auto border text-center cursor-pointer transition-colors border-2
+				text-black bg-red-300 hover:bg-red-500 border-black shadow-black
+				px-4 py-2 mb-8'>
+			<i class='fal fa-arrow-left'></i> Back
+		</a>
+		<div class='p-4 border-2 border-2 rounded-lg
+				text-black bg-lime-200 border-black shadow-black
+				mb-8'>
+			<p>
+				Event name
+			</p>
+			<h1 class='text-3xl mb-0'>
+				{{ object.name }}
+			</h1>
+		</div>
+		<div class='p-4 border-2 border-2 rounded-lg
+				text-black bg-teal-200 border-black shadow-black
+				mb-8'>
+			<h2>
+				Best timeslots
+			</h2>
+			<p class='text-end'>
+				These times were calculated from the uploaded calendars
+			</p>
+			{% if free_times.items %}
+				<div class='grid grid-cols-1 md:grid-cols-2 gap-2'>
+					{% for k, v in free_times.items %}
+						<div class='p-2 border-2 border-black rounded-lg
+								bg-indigo-200'>
+							<h4 class='mb-4'>
+								{% format_date k %}
+							</h4>
+							{% for x in v %}
+								<button class='w-full grid grid-cols-2 gap-2 flex justify-center text-center border rounded-lg
+										border-black bg-primary-200 hover:bg-primary-600 tempclass
+										p-2 {% if not forloop.last %}mb-4{% endif %}'
+										data-date='{% get_date k %}'
+								    data-time-from='{{ x.0.0 }}:{{ x.0.1 }}'
+						        data-time-to='{{ x.1.0 }}:{{ x.1.1 }}'
+										data-date-text='{% format_date k %}'
+								    data-time-from-text='{% two_digits x.0.0 %}:{% two_digits x.0.1 %}'
+						        data-time-to-text='{% two_digits x.1.0 %}:{% two_digits x.1.1 %}'
+										onclick='choose(this)'>
+									<div class='text-2xl'>
+										{% two_digits x.0.0 %}:{% two_digits x.0.1 %}
+									</div>
+									<div class='text-2xl'>
+										{% two_digits x.1.0 %}:{% two_digits x.1.1 %}
+									</div>
+								</button>
+							{% endfor %}
+						</div>
+					{% endfor %}
+				</div>
+			{% else %}
+				<div>
+					We couldn't find any free timeslots given the uploaded calendars.
+				</div>
+			{% endif %}
+		</div>
+		<div id='invite'
+				class='hidden border-2 rounded-lg
+				text-black rainbow-bg border-black shadow-black
+				p-4 mb-8'>
+			<h4 class='mb-8 text-white'>
+				Send invitations to your event "{{ object.name }}" on <span id='selectedDate'></span> from
+				<span id='selectedFrom'></span> to <span id='selectedTo'></span> to your friends:
+				<br/>
+				{% for eventMember in object.eventmember_set.all %}
+					{{ eventMember.name }}{% if not forloop.last %}, {% else %}.{% endif %}
+				{% endfor %}
+			</h4>
+			<form acition='{% url "core:schedule_detail" id=object.id %}' method='post'
+					onsubmit='invitations();'>
+				{% csrf_token %}
+				<input id='date' class='hidden' name='date'/>
+				<input id='from' class='hidden' name='start'/>
+				<input id='to' class='hidden' name='end'/>
+				<button id='sendingButton' class='w-full rounded border text-center cursor-pointer transition-colors
+					text-black bg-primary-300 hover:bg-primary-600 border-2 border-black
+					p-4 text-black'>
+					<span id='sendingSending'>
+						Send invitations
+					</span>
+					<span id='sendingSending2' class='hidden'>
+						Sending invitations <i class='fad fa-spinner-third animate-spin'></i>
+					</span>
+				</button>
+			</form>
+		</div>
+	</section>
+	<script>
+		function invitations() {
+			document.getElementById('sendingButton').disabled = true;
+			document.getElementById('sendingSending').classList.add('hidden');
+			document.getElementById('sendingSending2').classList.remove('hidden');
+			document.getElementById('sendingButton').classList.add('bg-primary-600');
+			document.getElementById('sendingButton').remove.add('bg-primary-300');
+		}
+		function choose(el) {
+			document.getElementById('invite').classList.remove('hidden');
+			for (let i = 0; i < document.getElementsByClassName('tempclass').length; i++) {
+				document.getElementsByClassName('tempclass')[i].classList.remove('bg-primary-600');
+				document.getElementsByClassName('tempclass')[i].classList.add('bg-primary-200');
+			}
+			el.classList.remove('bg-primary-200');
+			el.classList.add('bg-primary-600');
+			document.getElementById('date').value = el.getAttribute('data-date');
+			document.getElementById('from').value = el.getAttribute('data-time-from-text');
+			document.getElementById('to').value = el.getAttribute('data-time-to-text');
+			document.getElementById('selectedDate').innerText = el.getAttribute('data-date-text');
+			document.getElementById('selectedFrom').innerText = el.getAttribute('data-time-from-text');
+			document.getElementById('selectedTo').innerText = el.getAttribute('data-time-to-text');
+			window.scrollTo(0, document.body.scrollHeight);
+		}
+	</script>
+{% endblock %}
+{% block extra_js %}
+{% endblock %}

@@ -1,0 +1,286 @@
+{% load i18n static %}
+<form hx-post='{% url "profile:sign_up_form" %}' hx-swap='outerHTML'  class='flex flex-col w-full h-full min-h-0'>
+  <div class='w-full flex justify-between border-b-2 border-black px-3 py-4 text-center'>
+    <div class="w-8 h-8">
+    </div>
+    <div class='font-bold pt-1'>
+      {% trans 'Sign up' %}
+    </div>
+    <div>
+      <button class="button button-invisible-white w-8 h-8 flex justify-center rounded-full"
+          type='button'
+          onclick="hideSignUpOverlay();">
+        <i class="fal fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <div class='min-h-0 w-full px-3 md:px-6 py-6 text-left overflow-y-auto'>
+    <h3 class='pt-4 font-bold'>
+      Welcome to the community!
+    </h3>
+    <div class='flex flex-row-reverse'>
+      <button class='inline-block link-primary mb-4 ml-1'
+          type='button'
+          onclick='hideSignUpContent(); showSignInContent();'>
+        {% trans 'Sign in here' %}
+      </button>
+      {% trans 'Already have an account?' %}
+    </div>
+    {% if form.non_field_errors %}
+      <div class='w-full bg-white border-l-4 border-red-400 p-3 mb-4 rounded shadow'>
+        <div class='flex'>
+          <div class='flex items-center mr-3'>
+            <i class='fancy-alert-icon text-red-400 fas fa-exclamation-circle'></i>
+          </div>
+          <div>
+            {% for error in form.non_field_errors %}
+              <div>
+                {{ error }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    <div>
+      <div id='{{ form.first_name.id_for_label }}_container'
+        class='form-label-group-lg {% if form.first_name.errors %}error{% endif %}'>
+        <input name='{{ form.first_name.html_name }}' id='{{ form.first_name.id_for_label }}' type='text'
+          placeholder='{% trans "Elon" %}' class='input-white-bg'
+          {% if form.first_name.value %}value='{{ form.first_name.value }}'{% endif %}
+          onkeydown='removeError(this);'
+          maxlength='30'
+          required/>
+        <label for='{{ form.first_name.id_for_label }}'>
+          {% trans 'First name' %}
+        </label>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.first_name.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <div id='{{ form.last_name.id_for_label }}_container'
+        class='form-label-group-lg {% if form.last_name.errors %}error{% endif %}'>
+        <input name='{{ form.last_name.html_name }}' id='{{ form.last_name.id_for_label }}' type='text'
+          placeholder='{% trans "Musk" %}' class='input-white-bg'
+          {% if form.last_name.value %}value='{{ form.last_name.value }}'{% endif %}
+          onkeydown='removeError(this);'
+          maxlength='30'
+          required/>
+        <label for='{{ form.last_name.id_for_label }}'>
+          {% trans 'Last name' %}
+        </label>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.last_name.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <div id='{{ form.email.id_for_label }}_container'
+        class='form-label-group-lg {% if form.email.errors %}error{% endif %}'>
+        <input name='{{ form.email.html_name }}' id='{{ form.email.id_for_label }}' type='email'
+          placeholder='{% trans "lukeskywalker@gmail.com" %}' class='input-white-bg'
+          {% if form.email.value %}value='{{ form.email.value }}'{% endif %}
+          onkeydown='removeError(this);'
+          maxlength='254'
+          required/>
+        <label for='{{ form.email.id_for_label }}'>
+          {% trans 'Email' %}
+        </label>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.email.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <div id='{{ form.password1.id_for_label }}_container'
+        class='form-label-group-lg {% if form.password1.errors %}error{% endif %}'>
+        <input name='{{ form.password1.html_name }}' id='{{ form.password1.id_for_label }}' type='password'
+          placeholder='{% trans "Password" %}' class='input-white-bg' style='padding-right: 3rem;'
+          {% if form.password1.value %}value='{{ form.password1.value }}'{% endif %}
+          onkeyup='checkPasswordCall(this);'
+          aria-label='{% trans "Show or hide password" %}'
+          minlength='8'
+          maxlength='128'
+          required/>
+        <label for='{{ form.password1.id_for_label }}'>
+          {{ form.password1.label }}
+        </label>
+        <button class='absolute top-1/2 right-0 w-8 h-8 mr-2 transform -translate-y-1/2 text-xl text-gray-400
+            hover:text-black cursor-pointer unselectable transition-colors'
+            type='button'
+            onclick='showHidePassword(this, "{{ form.password1.id_for_label }}")'>
+          <i class='fal fa-eye'></i>
+        </button>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.password1.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <div class='-mt-2 mb-4 text-sm'>
+				<div id='pw-min' class='text-red-400'>
+					<span id='pw-min-valid' class='hidden'>
+						<i class='fal fa-check-circle'></i>
+					</span>
+					<span id='pw-min-invalid'>
+						<i class='fal fa-exclamation-circle'></i>
+					</span>
+					{% trans 'Must be atleast 8 characters long' %}
+				</div>
+      </div>
+      <div id='{{ form.password2.id_for_label }}_container'
+        class='form-label-group-lg {% if form.password2.errors %}error{% endif %}'>
+        <input name='{{ form.password2.html_name }}' id='{{ form.password2.id_for_label }}' type='password'
+          placeholder='{% trans "Repeat password" %}' class='input-white-bg'
+          {% if form.password2.value %}value='{{ form.password2.value }}'{% endif %}
+          onkeyup='checkPasswordCall(this);'
+          minlength='8'
+          maxlength='128'
+          required/>
+        <label for='{{ form.password2.id_for_label }}'>
+          {{ form.password2.label }}
+        </label>
+        <button class='absolute top-1/2 right-0 w-8 h-8 mr-2 transform -translate-y-1/2 text-xl text-gray-400
+            hover:text-black cursor-pointer unselectable transition-colors'
+            type='button'
+            aria-label='{% trans "Show or hide password" %}'
+            onclick='showHidePassword(this, "{{ form.password2.id_for_label }}")'>
+          <i class='fal fa-eye'></i>
+        </button>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.password2.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <div id='pw2-match' class='hidden -mt-2 mb-4 text-red-400'>
+        {% trans "Your passwords don't match "%}
+      </div>
+      <input type='hidden' name='from_page' value='{{ request.path }}' id='signUpFormFromPage'>
+      {% csrf_token %}
+      <button id='sign-up-button'
+          class='button button-md button-primary-darker w-full transform scale-100 active:scale-90' type='submit'
+          disabled>
+        <div>{% trans 'Sign up' %}</div>
+        <div class="stage hidden">
+          <span class="text-transparent">I</span>
+	        <span class="dot-flashing"></span>
+	        <span class="text-transparent">I</span>
+        </div>
+      </button>
+			<div class='text-center mt-4
+						text-gray-500 '>
+				{% trans 'By signing up, you agree to our terms and privacy policy.' %}
+			</div>
+      <div class='relative w-full py-8'>
+        <div class='h-0.5 w-full border-t border-gray-200'></div>
+        <div class='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-4 text-sm '>
+          {% trans 'or' %}
+        </div>
+      </div>
+			{% include 'user_profile/social_logins.html' %}
+    </div>
+  </div>
+  <script>
+    signUpButton = document.getElementById('sign-up-button');
+    inputUsername = document.getElementById('id_username');
+    inputUsernameContainer = document.getElementById('id_username_container');
+    inputEmail = document.getElementById('id_email');
+    inputEmailContainer = document.getElementById('id_email_container');
+    inputPassword1 = document.getElementById('id_password1');
+    inputPassword1Container = document.getElementById('id_password1_container');
+    inputPassword2 = document.getElementById('id_password2');
+    inputPassword2Container = document.getElementById('id_password2_container');
+    pwMin = document.getElementById('pw-min');
+    pwMinValid = document.getElementById('pw-min-valid');
+    pwMinInvalid = document.getElementById('pw-min-invalid');
+    pw2Match = document.getElementById('pw2-match');
+		async function checkPasswordCall(input) {
+      await removeError(input);
+      checkPassword(
+        inputPassword1, inputPassword2,
+        pwMin, pwMinValid, pwMinInvalid,
+        inputPassword1Container,
+        inputPassword2Container, pw2Match, signUpButton
+      );
+    }
+		function showHidePassword(element, id){
+			const el = document.getElementById(id);
+			if (el.type === 'password') {
+				el.type = 'text';
+				const newIcon = document.createElement('i');
+				newIcon.classList.add('fal');
+				newIcon.classList.add('fa-eye-slash');
+				element.textContent = '';
+				element.appendChild(newIcon);
+			} else {
+				el.type = 'password';
+				const newIcon = document.createElement('i');
+				newIcon.classList.add('fal');
+				newIcon.classList.add('fa-eye');
+				element.textContent = '';
+				element.appendChild(newIcon);
+			}
+		}
+
+	function checkPassword(
+    inputPassword1, inputPassword2,
+    pwMin, pwMinValid, pwMinInvalid,
+    inputPassword1Container,
+    inputPassword2Container, pw2Match, button
+	) {
+	  // Validate lowercase letters
+	  let showError = false;
+	  if (inputPassword1.value.length >= 8) {
+	    pwMin.classList.remove('text-red-400');
+	    pwMin.classList.add('text-green-500');
+	    pwMinValid.classList.remove('hidden');
+	    pwMinInvalid.classList.add('hidden');
+	  } else {
+	    pwMin.classList.add('text-red-400');
+	    pwMin.classList.remove('text-green-500');
+	    pwMinValid.classList.add('hidden');
+	    pwMinInvalid.classList.remove('hidden');
+	    showError = true;
+	  }
+	  if (showError) {
+	    inputPassword1Container.classList.add('error');
+	  } else {
+	    inputPassword1Container.classList.remove('error');
+	  }
+	  if (inputPassword1.value === inputPassword2.value) {
+	    pw2Match.classList.add('hidden');
+	    inputPassword2Container.classList.remove('error');
+	    if (!showError) {
+	      pw2Match.classList.add('hidden');
+	      inputPassword2Container.classList.remove('error');
+	      button.disabled = false;
+	      return;
+	    }
+	  } else {
+	    pw2Match.classList.remove('hidden');
+	    inputPassword2Container.classList.add('error');
+	  }
+	  button.disabled = true;
+	}
+
+		checkPassword(
+      inputPassword1, inputPassword2,
+      pwMin, pwMinValid, pwMinInvalid,
+      inputPassword1Container,
+      inputPassword2Container, pw2Match, signUpButton
+    );
+  </script>
+</form>

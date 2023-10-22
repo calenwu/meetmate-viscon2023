@@ -1,0 +1,213 @@
+{% extends 'user_profile/base_full.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Sign up | Reachmehere' %}{% endblock %}
+{% block og_title %}{% trans 'Sign up | Reachmehere' %}{% endblock %}
+{% block twitter_title %}{% trans 'Sign up | Reachmehere' %}{% endblock %}
+{% block name %}{% trans 'Sign up | Reachmehere' %}{% endblock %}
+{% block content %}
+  <div class='w-full h-full fixed inset-0 z-1'>
+    <div class='w-full h-full flex flex-col-reverse md:flex-col md:justify-center md:items-center md:p-6'>
+      <div class='w-full md:max-w-2xl min-h-0
+          flex flex-col justify-center items-center
+          rounded-b-none rounded-2xl md:rounded-b-2xl
+          bg-white
+          border-t md:border border-gray-300 shadow-lg
+          mt-24'>
+        <form class='flex flex-col w-full h-full min-h-0'
+						action='{% url "profile:custom_social_signup" %}' method='POST'>
+					<div class='w-full flex justify-center border-b border-gray-200 px-3 py-4 text-center'>
+						<div class='font-bold pt-1'>
+							{% trans 'Sign up' %}
+						</div>
+					</div>
+					<div class='min-h-0 w-full px-3 md:px-6 py-6 text-left overflow-y-auto'>
+						<h3 class='pt-4 font-bold'>
+							{% trans 'Finish your sign up' %}
+						</h3>
+						<div class='flex mb-2'>
+							{% trans 'Just fill in these fields and you are all set.' %}
+						</div>
+						{% if form.non_field_errors %}
+							<div class='w-full bg-white border-l-4 border-red-400 p-3 mb-4 rounded shadow'>
+								<div class='flex'>
+									<div class='flex items-center mr-3'>
+										<i class='fancy-alert-icon text-red-400 fas fa-exclamation-circle'></i>
+									</div>
+									<div>
+										{% for error in form.non_field_errors %}
+											<div>
+												{{ error }}
+											</div>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+						{% endif %}
+						<div>
+							<div id='{{ form.username.id_for_label }}_container'
+								class='form-label-group-lg {% if form.username.errors %}error{% endif %}'>
+								<input name='{{ form.username.html_name }}' id='{{ form.username.id_for_label }}'
+									placeholder='{% trans "lukeskywalker" %}' class='input-white-bg'
+									{% if form.username.value %}value='{{ form.username.value }}'{% endif %}
+									onkeydown='removeError(this);'
+									maxlength='32'
+									required/>
+								<label for='{{ form.username.id_for_label }}'>
+									{{ form.username.label }}
+								</label>
+								<div class='absolute top-1/2 right-0 transform -translate-y-1/2 text-xl p-4 unselectable'>
+									<span id='username-valid' class='hidden'>
+										<i class='fal fa-check text-green-400'></i>
+									</span>
+									<span id='username-invalid'>
+										<i class='fal fa-exclamation text-red-400'></i>
+									</span>
+								</div>
+							</div>
+							<div class='mb-4 text-red-400'>
+								{% for error in form.username.errors %}
+									<div class='text-sm mt-1'>
+										{{ error }}
+									</div>
+								{% endfor %}
+							</div>
+							<div id='username-taken' class='hidden -mt-2 mb-4 text-small text-red-400'>
+								{% trans 'Username is already taken' %}
+							</div>
+							<div id='username-available' class='hidden mb-4 text-red-400'>
+								{% for error in form.username.errors %}
+									<div class='text-sm mt-1'>
+										{{ error }}
+									</div>
+								{% endfor %}
+							</div>
+							<div id='{{ form.first_name.id_for_label }}_container'
+								class='form-label-group-lg {% if form.first_name.errors %}error{% endif %}'>
+								<input name='{{ form.first_name.html_name }}' id='{{ form.first_name.id_for_label }}' type='text'
+									placeholder='{% trans "Elon" %}' class='input-white-bg'
+									{% if form.first_name.value %}value='{{ form.first_name.value }}'{% endif %}
+									onkeydown='removeError(this);'
+									maxlength='30'
+									required/>
+								<label for='{{ form.first_name.id_for_label }}'>
+									{% trans 'First name' %}
+								</label>
+							</div>
+							<div class='mb-4 text-red-400'>
+								{% for error in form.first_name.errors %}
+									<div class='text-sm mt-1'>
+										{{ error }}
+									</div>
+								{% endfor %}
+							</div>
+							<div id='{{ form.last_name.id_for_label }}_container'
+								class='form-label-group-lg {% if form.last_name.errors %}error{% endif %}'>
+								<input name='{{ form.last_name.html_name }}' id='{{ form.last_name.id_for_label }}' type='text'
+									placeholder='{% trans "Musk" %}' class='input-white-bg'
+									{% if form.last_name.value %}value='{{ form.last_name.value }}'{% endif %}
+									onkeydown='removeError(this);'
+									maxlength='30'
+									required/>
+								<label for='{{ form.last_name.id_for_label }}'>
+									{% trans 'Last name' %}
+								</label>
+							</div>
+							<div class='mb-4 text-red-400'>
+								{% for error in form.last_name.errors %}
+									<div class='text-sm mt-1'>
+										{{ error }}
+									</div>
+								{% endfor %}
+							</div>
+							<div id='{{ form.email.id_for_label }}_container'
+								class='form-label-group-lg {% if form.email.errors %}error{% endif %}'>
+								<input name='{{ form.email.html_name }}' id='{{ form.email.id_for_label }}' type='email'
+									placeholder='{% trans "lukeskywalker@gmail.com" %}' class='input-white-bg'
+									{% if form.email.value %}value='{{ form.email.value }}'{% endif %}
+									onkeydown='removeError(this);'
+									maxlength='254'
+									required/>
+								<label for='{{ form.email.id_for_label }}'>
+									{% trans 'Email' %}
+								</label>
+							</div>
+							<div class='mb-4 text-red-400'>
+								{% for error in form.email.errors %}
+									<div class='text-sm mt-1'>
+										{{ error }}
+									</div>
+								{% endfor %}
+							</div>
+							<div id='pw2-match' class='hidden -mt-2 mb-4 text-red-400'>
+								{% trans "Your passwords don't match "%}
+							</div>
+							<input type='hidden' name='from_page' value='{{ request.path }}' id='signUpFormFromPage'>
+							{% csrf_token %}
+							<button id='sign-up-button'
+									class='button button-md button-primary-darker w-full transform scale-100 active:scale-90'
+									type='submit'>
+								<div>{% trans 'Sign up' %}</div>
+								<div class="stage hidden">
+									<span class="text-transparent">I</span>
+									<span class="dot-flashing"></span>
+									<span class="text-transparent">I</span>
+								</div>
+							</button>
+							<div class='text-center mt-4
+										text-gray-500 '>
+								{% trans 'By signing up, you agree to our terms and privacy policy.' %}
+								<br/>
+								{% trans 'You must be at least 18 years old to start a page.' %}
+							</div>
+						</div>
+					</div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+		signUpButton = document.getElementById('sign-up-button');
+    inputUsername = document.getElementById('id_username');
+    inputUsernameContainer = document.getElementById('id_username_container');
+    usernameTaken = document.getElementById('username-taken');
+    usernameValid = document.getElementById('username-valid');
+    usernameInvalid = document.getElementById('username-invalid');
+    checkUsernameUrl = "{% url 'profile:username_available' username='replace' %}";
+    function checkUsername() {
+			if (/^\s*$/.test(inputUsername.value)) {
+				inputUsernameContainer.classList.add('error');
+							signUpButton.disabled = true;
+							usernameValid.classList.add('hidden');
+							usernameInvalid.classList.remove('hidden');
+							usernameTaken.classList.remove('hidden');
+			} else {
+				let url = checkUsernameUrl.replace(
+				'replace',
+				inputUsername.value === '' ? 'nothing': inputUsername.value);
+				fetch(url)
+					.then(response => response.json())
+					.then(data => {
+						if (data['available']) {
+							inputUsernameContainer.classList.remove('error');
+							signUpButton.disabled = false;
+							usernameValid.classList.remove('hidden');
+							usernameInvalid.classList.add('hidden');
+							usernameTaken.classList.add('hidden');
+						} else {
+							inputUsernameContainer.classList.add('error');
+							signUpButton.disabled = true;
+							usernameValid.classList.add('hidden');
+							usernameInvalid.classList.remove('hidden');
+							usernameTaken.classList.remove('hidden');
+						}
+					});
+			}
+    }
+		window.onload = () => {
+			checkUsername();
+		}
+		inputUsername.addEventListener('input', (event) => {
+			checkUsername();
+		});
+  </script>
+{% endblock %}

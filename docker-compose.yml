@@ -1,0 +1,43 @@
+version: '3.8'
+volumes:
+  static:
+services:
+  meetmate: &meetmate
+    #platform: linux/amd64
+    env_file: .env
+    build:
+      context: .
+      dockerfile: docker/dev/meetmate/Dockerfile
+    depends_on:
+      - 'redis'
+    environment:
+      - 'DJANGO_SETTINGS_MODULE=config.settings.base'
+      - 'PYTHONUNBUFFERED=1'
+      - 'DEBUG=True'
+    volumes:
+      - ./apps/meetmate:/apps/meetmate
+      - ./apps/meetmate/meetmate/media:/media/meetmate
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    ports:
+      - '80:8008'
+      - '8001:8001'
+#    command: python manage.py runserver 0.0.0.0:8008 && celery -A config worker --loglevel=info -f celery.log -c 9
+    command: python manage.py runserver 0.0.0.0:8008
+#    networks:
+#      - customnetwork
+
+  redis:
+    build:
+      context: .
+      dockerfile: docker/dev/redis/Dockerfile
+    ports:
+      - '6379'
+#    networks:
+#      customnetwork:
+##        ipv4_address: 172.20.0.13
+
+#networks:
+#  customnetwork:
+#    ipam:
+#      config:
+#        - subnet: 172.20.0.0/16

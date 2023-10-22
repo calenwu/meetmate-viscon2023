@@ -1,0 +1,95 @@
+{% extends 'user_profile/base_control_panel.html' %}
+{% load i18n static %}
+{% block title %}{% trans 'Payment methods | Reachmehere' %}{% endblock %}
+{% block og_title %}{% trans 'Payment methods | Reachmehere' %}{% endblock %}
+{% block twitter_title %}{% trans 'Payment methods | Reachmehere' %}{% endblock %}
+{% block name %}{% trans 'Payment methods | Reachmehere' %}{% endblock %}
+
+{% block content %}
+  <div class='full-card mb-8'>
+    <h3 class='font-bold mb-6'>{% trans 'Payment methods' %}</h3>
+    <div class='flex flex-col'>
+      <div class='flex flex-row justify-between items-center mb-8'>
+        <div class='flex flex-row mr-4'>
+          <div class='flex-none w-20 h-20 flex justify-center items-center border border-gray rounded mr-4'>
+            <img class='w-12 h-12' src='{% static "img/stripe.svg" %}' alt='{% trans "Stripe logo" %}'/>
+          </div>
+          <div class='flex flex-col flex-initial'>
+            <h4 class='font-bold'>{% trans 'Stripe' %}</h4>
+            <p>{% trans 'Accept credit cards, Apple Pay and Google Pay. Paid out to your bank account' %}</p>
+          </div>
+        </div>
+        <div class='whitespace-nowrap'>
+          {% if user.stripe_access_token %}
+            <a href='{% url "profile:stripe_disable" %}'
+                class='block button button-sm button-rounded button-primary-outline'>
+              <i class='fal fa-link mr-2'></i>{% trans 'Disable' %}
+            </a>
+          {% else %}
+            <a href='{% url "profile:stripe_redirect" %}' class='block button button-sm button-rounded button-primary'>
+              <i class='fal fa-link mr-2'></i>{% trans 'Enable' %}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <!-- TODO -->
+      <div class='flex flex-row justify-between items-center'>
+        <div class='flex flex-row mr-4'>
+          <div class='flex-none w-20 h-20 flex justify-center items-center border border-gray rounded mr-4'>
+            <img class='w-12 h-12' src='{% static "img/paypal.svg" %}' alt='{% trans "Paypal logo" %}'/>
+          </div>
+          <div class='flex flex-col flex-initial'>
+            <h4 class='font-bold'>{% trans 'Paypal' %}</h4>
+            <p>{% trans 'Accept Paypal. Paid out to your paypal account' %}</p>
+						<p class='text-red-400'>
+							{% trans 'There currently is an error with Paypal and we cannot provide Paypal as a payment provider. Please use Stripe at this moment.' %}
+						</p>
+						{% if paypal_error %}
+							<p class='text-red-400'>
+								{% trans 'There currently is an error with Paypal. Come back at a later time.' %}
+							</p>
+						{% endif %}
+          </div>
+        </div>
+        <div class='whitespace-nowrap' dir='ltr' style='text-align: left;' trbidi='on'>
+          <script>
+            (function(d, s, id) {
+              var js, ref = d.getElementsByTagName(s)[0];
+              if (!d.getElementById(id)) {
+                js = d.createElement(s);
+                js.id = id;
+                js.async = true;
+                js.src = 'https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js';
+                ref.parentNode.insertBefore(js, ref);
+              }
+            }(document, 'script', 'paypal-js'));
+          </script>
+          {% if user.paypal_merchant_id %}
+            <a class='block button button-sm button-rounded button-primary-outline'
+                data-paypal-button='true' href='{% url "profile:paypal_disable" %}' target='PPFrame'>
+              <i class='fal fa-link mr-2'></i>{% trans 'Disable' %}
+            </a>
+          {% else %}
+						{% if paypal_error %}
+							<button class='block button button-sm button-rounded button-primary' disabled>
+								<i class='fal fa-link mr-2'></i>{% trans 'Disabled' %}
+							</button>
+						{% else %}
+							<button class='block button button-sm button-rounded button-primary' disabled>
+								<i class='fal fa-link mr-2'></i>{% trans 'Disabled' %}
+							</button>
+{#							<a class='block button button-sm button-rounded button-primary'#}
+{#									data-paypal-button='true' href='{{ paypal_action_url }}' target='PPFrame'>#}
+{#								<i class='fal fa-link mr-2'></i>{% trans 'Enable' %}#}
+{#							</a>#}
+						{% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class='full-card'>
+    <div class='' hx-get='{% url "profile:password_change_form" %}' hx-trigger='load'>
+    </div>
+  </div>
+{% endblock %}

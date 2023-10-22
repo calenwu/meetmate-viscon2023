@@ -1,0 +1,318 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<link rel='stylesheet' href='{% static "css/base.css" %}'>
+		<link rel='stylesheet' href='{% static "css/tailwind.css" %}'>
+		<link rel='stylesheet' href='{% static "vendors/fontawesome-pro-5.15.1-web/css/all.min.css" %}'>
+		{% block extra_css %}
+		{% endblock %}
+  </head>
+	<body>
+	  <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+		<div class='snackbar z-50 fixed top-16 w-full'>
+		  <div id='snackbar' class='mx-auto max-w-screen-xl flex flex-col justify-center items-center px-4 w-full'></div>
+		</div>
+	  <div id='dark-overlay' class='dark-overlay'>
+	    <div id='dark-overlay-content' class='w-full h-full'>
+	      <div id='sign-up-overlay-content'
+	           class='hidden w-full h-full flex flex-col-reverse md:flex-col md:justify-center md:items-center md:p-6
+	             transform translate-y-0 translate-y-40 transition-transform'>
+	        <div class='w-full md:max-w-2xl min-h-0
+	            flex flex-col justify-center items-center
+	            rounded-b-none rounded-2xl md:rounded-b-2xl
+	            bg-white border-2 border-black
+	            mt-6 md:mt-0'
+	            hx-get='{% url "profile:sign_up_form" %}' hx-trigger='load'>
+	        </div>
+	      </div>
+	      <div id='sign-in-overlay-content'
+	           class='hidden w-full h-full flex flex-col-reverse md:flex-col md:justify-center md:items-center md:p-6
+	             transform translate-y-0 translate-y-40 transition-transform'>
+	        <div class='w-full md:max-w-2xl min-h-0
+	            flex flex-col justify-center items-center
+	            rounded-b-none rounded-2xl md:rounded-b-2xl
+	            bg-white border-2 border-black
+	            mt-6 md:mt-0'
+	            hx-get='{% url "profile:sign_in_form" %}' hx-trigger='load'>
+	        </div>
+	      </div>
+	      <div id='password-reset-overlay-content'
+	           class='hidden w-full h-full flex flex-col-reverse md:flex-col md:justify-center md:items-center md:p-6
+	             transform translate-y-0 translate-y-40 transition-transform'>
+	        <div class='w-full md:max-w-2xl min-h-0
+	            flex flex-col justify-center items-center
+	            rounded-b-none rounded-2xl md:rounded-b-2xl
+	            bg-white border-2 border-black
+	            mt-6 md:mt-0'
+	            hx-get='{% url "profile:password_reset_form" %}' hx-trigger='load'>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+		<section class='w-full min-h-screen bg-gradient-to-br
+	      from-secondary-500 to-quinary-500
+				p-4'>
+			<nav class='flex justify-between items-center max-w-screen-lg mx-auto mb-8 '>
+				<a href='{% url "core:create" %}'>
+					Home
+				</a>
+				
+				<div class='flex items-center'>
+				{% if request.user.is_authenticated %}
+				
+				<a href='{% url "core:events" %}' class='rounded-full cursor-pointer border-2 transition-colors
+                bg-lime-200 hover:bg-primary-500 border-black
+                px-4 py-2 mr-2'>
+              	Tinder Matching
+						</a>
+
+				
+					<a class='rounded-full cursor-pointer border-2 transition-colors
+							bg-primary-200 hover:bg-primary-500 border-black
+							px-4 py-2 mr-2'
+							href='{% url "profile:edit_profile" %}'
+							>
+						{{request.user.first_name}}
+					</a>
+				{% else %}
+						<a href='{% url "core:events" %}' class='rounded-full cursor-pointer border-2 transition-colors
+                bg-lime-200 hover:bg-primary-500 border-black
+                px-4 py-2 mr-2'>
+              Tinder Matching
+						</a>
+						<button class='rounded-full cursor-pointer border-2 transition-colors
+								bg-primary-200 hover:bg-primary-500 border-black
+								px-4 py-2 mr-2'
+								onclick='showSignInOverlay();'
+								>
+							Sign in
+						</button>
+						<button class='rounded-full cursor-pointer border-2 transition-colors
+								border-black bg-quaternary-200 hover:bg-quaternary-500 px-4 py-2'
+								onclick='showSignUpOverlay();'>
+							Sign up
+						</button>
+					
+				{% endif %}
+			</div>
+			</nav>
+			<div class='max-w-screen-lg mx-auto relative'>
+				{% block content %}
+
+				{% endblock %}
+			</div>
+		</section>
+		<script>
+			function addLeadingZero(input) {
+				// Get the current value of the input
+				let value = input.value;
+				
+				// Ensure it's a valid number
+				if (!isNaN(value)) {
+					// Convert the value to an integer to remove any leading zeros
+					let intValue = parseInt(value, 10);
+
+					// Check if the value is a single-digit number
+					if (intValue >= 0 && intValue <= 9) {
+						// Add a leading zero and update the input value
+						input.value = '0' + intValue;
+					}
+				}
+			}
+			fancyAlertCounter = 0;
+			async function removeError(input) {
+				input.parentElement.classList.remove('error');
+				input.parentElement.nextSibling.nextSibling.textContent = '';
+			}
+
+      const darkOverlay = document.getElementById('dark-overlay');
+      const darkOverlayContent = document.getElementById('dark-overlay-content');
+      const signUpOverlayContent = document.getElementById('sign-up-overlay-content');
+      const signInOverlayContent = document.getElementById('sign-in-overlay-content');
+      const passwordResetOverlayContent = document.getElementById('password-reset-overlay-content');
+			function hideBodyOverflow() {
+				document.body.classList.add('overflow-hidden');
+			}
+			function showBodyOverflow() {
+				document.body.classList.remove('overflow-hidden');
+			}
+      function showDarkOverlay() {
+      	darkOverlay.classList.add('z-40');
+        darkOverlay.classList.add('opacity-100');
+        hideBodyOverflow();
+      }
+      function hideDarkOverlay() {
+      	darkOverlay.classList.remove('z-40');
+        darkOverlay.classList.remove('opacity-100');
+        showBodyOverflow();
+      }
+      function showOverlayContent(element) {
+        element.classList.remove('hidden');
+        element.classList.remove('translate-y-40');
+      }
+      function hideOverlayContent(element) {
+        element.classList.add('translate-y-40');
+        element.classList.add('hidden');
+      }
+      function showOverlay(element) {
+        showDarkOverlay();
+        element.classList.remove('hidden');
+        setTimeout(() => {
+          element.classList.remove('translate-y-40');
+        }, 1);
+      }
+      function hideOverlay(element) {
+        hideDarkOverlay();
+        element.classList.add('translate-y-40');
+        setTimeout(() => {
+          element.classList.add('hidden');
+        }, 150);
+      }
+      function showSignUpContent() {
+      	showOverlayContent(signUpOverlayContent);
+      }
+      function hideSignUpContent() {
+      	hideOverlayContent(signUpOverlayContent);
+      }
+      function showSignUpOverlay() {
+      	document.getElementById('signUpFormFromPage').value = window.location.pathname;
+      	showOverlay(signUpOverlayContent);
+      }
+      function hideSignUpOverlay() {
+      	hideOverlay(signUpOverlayContent);
+      }
+      function showSignInContent() {
+      	showOverlayContent(signInOverlayContent);
+      }
+      function hideSignInContent() {
+      	hideOverlayContent(signInOverlayContent);
+      }
+      function showSignInOverlay() {
+      	document.getElementById('signInFormFromPage').value = window.location.pathname;
+      	showOverlay(signInOverlayContent);
+      }
+      function hideSignInOverlay() {
+      	hideOverlay(signInOverlayContent);
+      }
+      function showPasswordResetContent() {
+      	showOverlayContent(passwordResetOverlayContent);
+      }
+      function hidePasswordResetContent() {
+      	showOverlayContent(passwordResetOverlayContent);
+      }
+      function showPasswordResetOverlay() {
+      	showOverlay(passwordResetOverlayContent);
+      }
+      function hidePasswordResetOverlay() {
+      	hideOverlay(passwordResetOverlayContent);
+      }
+
+			function removeElement(id) {
+			  document.getElementById(id).outerHTML = '';
+			}
+			function setAttributes(el, attrs) {
+			  for (let key in attrs) {
+			    el.setAttribute(key, attrs[key]);
+			  }
+			  return el;
+			}
+
+			function createFancyAlert(tag, title, innerHTML, mSecVisible) {
+			  let firstDiv = setAttributes(document.createElement('div'), {
+			    'id': 'fancy-alert-' + fancyAlertCounter.toString(),
+			    'class': 'flex justify-between bg-green-400 w-full md:w-3/4 p-4 transition-opacity relative rounded mb-4 shadow shadow-black border-2 border-black opacity-0 opacity-100'
+			  });
+			  let icon = setAttributes(document.createElement('i'), {
+			    'class': 'fancy-alert-icon fas',
+			  });
+			  let secondDiv = setAttributes(document.createElement('div'), {
+			    'class': 'flex',
+			  });
+			  let thirdDiv = setAttributes(document.createElement('div'), {
+			    'class': '',
+			  });
+			  if (tag === 'success') {
+			    icon.classList.add('text-black-400');
+			    icon.classList.add('fa-check-circle');
+			  } else if (tag === 'warning') {
+			    icon.classList.add('text-black-400');
+			    icon.classList.add('fa-exclamation-circle');
+			  } else {
+			    icon.classList.add('text-black-400');
+			    icon.classList.add('fa-exclamation-circle');
+			  }
+			  thirdDiv.appendChild(icon);
+			  let fourthDiv = setAttributes(document.createElement('div'), {
+			    'class': 'pl-2',
+			  });
+			  let titleDiv = setAttributes(document.createElement('div'), {
+			    'class': 'font-bold font-weight-bold mb-1'
+			  });
+			  let text = setAttributes(document.createElement('div'), {
+			    'class': 'mb-1',
+			  });
+			  titleDiv.innerText = title;
+			  text.innerHTML = innerHTML;
+			  fourthDiv.appendChild(titleDiv);
+			  fourthDiv.appendChild(text);
+			  secondDiv.appendChild(thirdDiv);
+			  secondDiv.appendChild(fourthDiv);
+			  let closeContainer = setAttributes(document.createElement('div'), {
+			    'class': 'flex justify-center items-center',
+			  });
+			  let closeIconContainer = setAttributes(document.createElement('span'), {
+			    'class': 'p-2',
+			    'onClick': 'closeFancyAlert(' + fancyAlertCounter.toString() + ')'
+			  });
+			  let closeIcon = setAttributes(document.createElement('i'), {
+			    'class': 'cursor-pointer fal fa-times',
+			  });
+			  closeIconContainer.appendChild(closeIcon);
+			  closeContainer.appendChild(closeIconContainer);
+			  firstDiv.appendChild(secondDiv);
+			  firstDiv.appendChild(closeContainer);
+			  let snackbar = document.getElementById('snackbar');
+			  snackbar.appendChild(firstDiv);
+			  fancyAlertCounter++;
+			  if (mSecVisible) {
+			    setTimeout(function () {
+			      closeIconContainer.click();
+			    }, mSecVisible);
+			  } else {
+			    setTimeout(function () {
+			      closeIconContainer.click();
+			    }, 5000);
+			  }
+			}
+
+			function closeFancyAlert(alert_id) {
+			  let alert = document.getElementById('fancy-alert-' + alert_id.toString());
+			  alert.classList.remove('opacity-100');
+			  setTimeout(function () {
+			    alert.style.height = 0;
+			  }, 250);
+			  setTimeout(function () {
+			    removeElement('fancy-alert-' + alert_id.toString());
+			  }, 500);
+			}
+			{% if messages %}
+			  let fancyBaseCounter = 0;
+			  let message = '';
+			  let alert = '';
+			  const fancyBaseDelay = 500;
+			  {% for message in messages %}
+			    setTimeout(function(){
+			      message = `{{ message.message }}`.replace(/&quot;/g, "\"").replaceAll("\n", "\\n");
+			      alert = JSON.parse(message);
+			      createFancyAlert(alert['data']['type'], alert['data']['title'], alert['data']['innerHTML']);
+			    }, fancyBaseCounter * fancyBaseDelay);
+			    fancyBaseCounter = fancyBaseCounter + 1;
+			  {% endfor %}
+			{% endif %}
+		</script>
+		{% block extra_js %}
+
+		{% endblock %}
+	</body>
+</html>

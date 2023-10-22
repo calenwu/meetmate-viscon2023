@@ -1,0 +1,671 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% block title %}{{ object.username }} | Reachmehere{% endblock %}
+{% block og_title %}{{ object.username }} | Reachmehere{% endblock %}
+{% block twitter_title %}{{ object.username }} | Reachmehere{% endblock %}
+{% block name %}{{ object.username }} | Reachmehere{% endblock %}
+{% block extra_css %}
+	<link rel='stylesheet' href='{% static "css/stripe.css" %}'>
+{% endblock %}
+{% block overlay %}
+	<div id='stripe-overlay' class='dark-overlay w-full h-full'>
+		<div id='stripe-overlay-content' class='w-full h-full flex flex-col-reverse md:flex-col md:justify-center
+				md:items-center md:p-6 transform translate-y-0 translate-y-40 transition-transform'>
+			<div class='w-full md:max-w-2xl min-h-0
+					flex flex-col justify-center items-center
+					rounded-b-none rounded-2xl md:rounded-b-2xl
+					mt-6 md:mt-0
+					bg-white'>
+				<div class='w-full flex justify-between border-b px-3 py-4 text-center
+						border-gray-200'>
+					<div class='w-8 h-8'>
+					</div>
+					<div class='font-bold pt-1'>
+						{% trans 'Checkout' %}
+					</div>
+					<div>
+						<button class='button button-invisible-white w-8 h-8 flex justify-center rounded-full'
+								type='button'
+							onclick='hideStripeOverlay();'>
+							<i class='fal fa-times'></i>
+						</button>
+					</div>
+				</div>
+				<form id='stripe-payment-form' class='min-h-0 w-full px-3 md:px-6 py-6 text-left overflow-y-auto'>
+					{% csrf_token %}
+					<div id='stripe-payment-element-shimmer' class='grid grid-cols-4 gap-4 animate-pulse'>
+						<div class='col-span-4 sm:col-span-2'>
+							<label class='text-sm'>
+								Card number
+							</label>
+							<div class='p-5 border rounded
+									bg-gray-200'>
+							</div>
+						</div>
+						<div class='col-span-4 sm:col-span-2 grid grid-cols-2 gap-4 -mt-2 sm:mt-auto'>
+							<div>
+								<label class='text-sm'>
+										Expiry
+								</label>
+								<div class='p-5 border rounded
+										bg-gray-200'>
+								</div>
+							</div>
+							<div>
+								<label class='text-sm'>
+									CVC
+								</label>
+								<div class='p-5 border rounded
+										bg-gray-200'>
+								</div>
+							</div>
+						</div>
+						<div class='col-span-4 mb-2 -mt-2'>
+							<label class='text-sm'>
+									Country
+							</label>
+							<div class='p-5 border rounded
+									bg-gray-200'>
+							</div>
+						</div>
+					</div>
+					<div id='stripe-payment-element' class='hidden'>
+					</div>
+					<div class='border text-center p-2 rounded mt-4'>
+						{% trans 'You will be charged' %} <span id='charging-amount'></span>
+					</div>
+					<button id='stripe-submit' class='mt-4 stripe' disabled>
+						<div class='stripe-spinner hidden' id='stripe-spinner'></div>
+						<span id='stripe-button-text'>Pay</span>
+					</button>
+					<p id='stripe-payment-error' role='alert'></p>
+				</form>
+			</div>
+		</div>
+	</div>
+  <div id='paypal-overlay' class='dark-overlay w-full h-full'>
+    <div id='paypal-overlay-content' class='w-full h-full flex flex-col-reverse md:flex-col md:justify-center
+        md:items-center md:p-6 transform translate-y-0 translate-y-40 transition-transform'>
+      <div class='w-full md:max-w-2xl min-h-0
+          flex flex-col justify-center items-center
+          rounded-b-none rounded-2xl md:rounded-b-2xl
+          mt-6 md:mt-0
+          bg-white'>
+        <div class='w-full flex justify-between border-b px-3 py-4 text-center
+						border-gray-200'>
+          <div class='w-8 h-8'>
+          </div>
+          <div class='font-bold pt-1'>
+            {% trans 'Checkout' %}
+          </div>
+          <div>
+            <button class='button button-invisible-white w-8 h-8 flex justify-center rounded-full'
+                type='button'
+              onclick='hidePaypalOverlay();'>
+              <i class='fal fa-times'></i>
+            </button>
+          </div>
+        </div>
+        <div class='min-h-0 w-full px-3 md:px-6 py-6 text-left overflow-y-auto'>
+          <div id='paypal-button-shimmer' class='flex flex-col items-center animate-pulse'>
+            <div class='w-full h-16 mb-4 rounded
+								bg-gray-200'></div>
+            <div class='w-full h-16 mb-4 rounded
+								bg-gray-200'></div>
+            <div class='w-32 h-6rounded
+								bg-gray-200'></div>
+          </div>
+					<div id='paypal-button-container' class='hidden'>
+					</div>
+          <div class='border text-center p-2 rounded'>
+            {% trans 'You will be charged' %} <span id='charging-amount-paypal'></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+	<div id='paymentOverlay'
+		class='z-40 fixed top-0 left-0 h-full w-full flex justify-center items-center text-white text-center
+		overflow-y-auto bg-black bg-opacity-80 transition-opacity duration-500 z-40 hidden'>
+		<div class='absolute top-4 right-4 p-4 cursor-pointer' onclick='hidePaymentOverlay();'>
+			<i class='fal fa-times text-2xl'></i>
+		</div>
+		<div class='p-4'>
+			<i class='fal fa-circle-notch text-5xl animate-spin mb-4'></i>
+			<h3>{% trans 'Thank you for your purchase'%}</h3>
+			<div>
+				{% trans 'We are confirming your payment, please dont refresh the page' %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block content %}
+  <section class='relative aspect-w-6 aspect-h-1 group lg:mt-4' style='min-height: 10rem'>
+    <img class='w-full h-full object-cover'
+        src='{{ object.display_banner_url }}'
+				alt='{% trans "banner" %}'>
+	  {% if request.user.sku == object.sku %}
+	    <a href='{% url "profile:edit_profile" %}'>
+        <div class='absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center max-w-full object-cover
+            opacity-0 group-hover:opacity-100 bg-black bg-opacity-80 text-white p-4 transition-opacity'>
+          {% trans 'Click here to change your profile banner' %}
+        </div>
+	    </a>
+	    <a href='{% url "profile:edit_profile" %}'>
+	      <div class='absolute right-2 bottom-2 flex justify-center items-center w-20 h-8 rounded
+	          bg-white border border-gray-500 text-sm' style='top: unset; left: unset;'>
+	        <i class='fal fa-pencil mr-2'></i><span class='pr-2'>{% trans 'Edit' %}</span>
+	      </div>
+	    </a>
+    {% endif %}
+  </section>
+  <section class='relative bg-white pt-12 lg:pt-0'>
+	  <div class='block lg:hidden absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 group'>
+	    <img class='w-32 h-32 object-cover rounded-full border-4 border-white'
+	        src='{{ object.display_profile_picture_url }}'
+	        alt='{% trans "profile picture" %}'>
+		  {% if request.user.sku == object.sku %}
+		    <a href='{% url "profile:edit_profile" %}'>
+          <div class='absolute top-0 right-0 bottom-0 left-0 w-32 h-32
+              flex items-center justify-center max-w-full object-cover
+              rounded-full opacity-0 group-hover:opacity-100 bg-black bg-opacity-80 text-white transition-opacity'>
+            {% trans 'Edit' %}
+          </div>
+		    </a>
+	    {% endif %}
+	  </div>
+    <div class='flex max-w-screen-lg edge-to-edge-container m-auto pt-4 md:pt-8 pb-8'>
+      <div class='hidden lg:flex flex-none mr-8'>
+			  {% if request.user.sku == object.sku %}
+				  <div class='relative w-32 h-32 group'>
+		        <img class='w-32 h-32 object-cover rounded-full border-4 border-white second-border-gray'
+	              src='{{ object.display_profile_picture_url }}'
+		            alt='{% trans "profile picture" %}'>
+				    <a href='{% url "profile:edit_profile" %}'>
+		          <div class='absolute top-0 right-0 bottom-0 left-0 w-32 h-32
+		              flex items-center justify-center max-w-full object-cover
+		              rounded-full opacity-0 group-hover:opacity-100 bg-black bg-opacity-80 text-white transition-opacity'>
+		            {% trans 'Edit' %}
+		          </div>
+				    </a>
+			    </div>
+			  {% else %}
+	        <img class='w-32 h-32 object-cover rounded-full border-4 border-white second-border-gray'
+              src='{{ object.display_profile_picture_url }}'
+	            alt='{% trans "profile picture" %}'>
+		    {% endif %}
+      </div>
+      <div class='w-full'>
+        <h3 class='font-bold text-center lg:text-left mb-1'>
+          {{ object.username }}
+        </h3>
+        <h4 class='text-center lg:text-left text-gray-500 mb-2'>
+          {{ object.first_name }} {{ object.last_name }}
+        </h4>
+        <h4>
+					{{ object.display_about_me }}
+        </h4>
+      </div>
+    </div>
+  </section>
+  <section class='max-w-screen-lg edge-to-edge-container m-auto mt-8'>
+    {% if request.user == object and not request.user.stripe_access_token and not request.user.paypal_merchant_id %}
+      <div class='w-full flex flex-col lg:flex-row justify-between items-center
+          border border-yellow-200 bg-opacity-60 bg-yellow-100 rounded full-card'>
+        <div class='lg:mr-4 mb-4 lg:mb-0'>
+          {% trans 'Your page is currently private. Please connect a payout method to publish your page.' %}
+        </div>
+        <div>
+          <a href='{% url "profile:settings" %}'
+              class='flex items-center button button-md button-light-dark rounded-full nowrap'>
+	          <i class='fal fa-plug mr-2'></i>{% trans 'Connect' %}
+          </a>
+        </div>
+      </div>
+    {% else %}
+	    {% if object.stripe_access_token or object.paypal_merchant_id %}
+	      {% if request.user.is_authenticated and request.user != object %}
+			    <div class='shadow py-8 px-4 md:p-8 mb-8 bg-white rounded-lg'>
+			      <h2 class='text-center'>{% trans 'Contact' %}</h2>
+			      <form hx-swap='outerHTML' hx-get='{% url "paid_messages:create" user_sku=object.sku %}' hx-trigger='load'>
+				      <div class='animate-pulse'>
+					      <div class='h-4 w-20 mb-4 rounded-lg
+										bg-gray-400'>
+							  </div>
+					      <div class='h-80 w-full rounded-lg mb-4
+										bg-gray-400'>
+					      </div>
+							  <div class='flex flex-row items-center mb-8'>
+							    <div class='mr-4'>
+								    <div class='w-12 h-4 mb-2 rounded-full
+												bg-gray-400'>
+								    </div>
+								    <div class='w-20 h-4 mb-2 rounded-full
+												bg-gray-400'>
+								    </div>
+							    </div>
+								  <div class='h-12 w-full rounded-full
+								      bg-gray-400'>
+								  </div>
+							  </div>
+							  <button class='block button button-md button-rounded w-full h-12
+										bg-gray-400'>
+							  </button>
+								<div class='p-3'></div>
+							  <button class='block button button-md button-rounded w-full h-12
+										bg-gray-400'>
+							  </button>
+				      </div>
+			      </form>
+			    </div>
+		    {% else %}
+			    <div class='shadow py-8 px-4 md:p-8 mb-8 bg-white rounded-lg'>
+			      <h2 class='text-center'>{% trans 'Contact' %}</h2>
+			      <div class='w-full flex flex-col items-center
+			          border border-yellow-200 bg-opacity-60 bg-yellow-100 rounded full-card'>
+				      {% if not request.user.is_authenticated %}
+				        <div class='lg:mr-4 mb-4 lg:mb-0'>
+				          {% trans 'Please sign up to to contact this user.' %}
+				        </div>
+				        <div>
+				          <button onclick='showSignUpOverlay();'
+				              class='flex items-center button button-md button-light-dark rounded-full nowrap'>
+					          <i class='fal fa-plug mr-2'></i>{% trans 'Sign up' %}
+				          </button>
+				        </div>
+				      {% else %}
+				        <div class=''>
+				          {% trans 'You cannot send messages to yourself.' %}
+				        </div>
+				      {% endif %}
+			      </div>
+					  <label class='contact-label'>
+					    {% trans 'Message' %}
+					  </label>
+					  <textarea class='contact-input'
+				      rows='10'
+				      placeholder='Your message'
+				      disabled></textarea>
+					  <div class='mb-4 text-red-400'>
+					  </div>
+					  <div class='flex flex-row items-center'>
+					    <label class='contact-label whitespace-nowrap mb-4 mr-8'>
+					      {% trans 'Price' %} ({{ object.currency }})
+					      <br/>
+					      ({% trans 'mininum: ' %}{{ object.currency }} {{ object.display_min_amount }})
+					    </label>
+					    <input class='flex-grow contact-input'
+					        placeholder='{{ object.display_min_amount }}'
+					        type='number'
+				          value='{{ object.display_min_amount }}'
+					        disabled/>
+					  </div>
+					  <div class='mb-8 text-red-400'>
+					  </div>
+					  <button class='block button button-md button-rounded button-primary-darker w-full mb-8'
+					      name='payment_method' value='stripe' type='submit' disabled>
+						  <div>{% trans 'Pay with credit card' %}</div>
+				      <div class='stage hidden'>
+				        <span class='text-transparent'>I</span>
+				        <span class='dot-flashing'></span>
+				        <span class='text-transparent'>I</span>
+				      </div>
+					  </button>
+					  <button class='block button button-md button-rounded text-white bg-blue-400 w-full'
+				        name='payment_method' value='paypal' type='submit' disabled>
+						  <div>
+								<i class='fab fa-paypal mr-2'></i>
+								{% trans 'Pay with Paypal' %}
+							</div>
+				      <div class='stage hidden'>
+				        <span class='text-transparent'>I</span>
+				        <span class='dot-flashing'></span>
+				        <span class='text-transparent'>I</span>
+				      </div>
+					  </button>
+			    </div>
+		    {% endif %}
+	    {% else %}
+	      <div class='w-full flex flex-col lg:flex-row justify-center items-center
+	          border border-yellow-200 bg-opacity-60 bg-yellow-100 rounded full-card'>
+	        <div class='lg:mr-4'>
+	          {% trans 'The user currently cannot accept any messages.' %}
+	        </div>
+	      </div>
+	    {% endif %}
+    {% endif %}
+    <div>
+	    {% for username in object.social_accounts.github %}
+	      <a href='https://github.com/{{ username }}' target='_blank'>
+	        <div class='relative flex justify-between items-center shadow rounded-lg border p-4 mb-8
+	            filter brightness-100 hover:brightness-50 transition-all
+							border-gray'
+	             style='background-color: #333'>
+	          <div class='w-16 h-16 flex justify-center items-center bg-white rounded-full border
+	              border-gray'>
+	            <i class='fab fa-github text-4xl' style='color: #333;'></i>
+	          </div>
+	          <div class='flex justify-center items-center'>
+	            <h4 class='text-white'>
+	              {{ username }}
+	            </h4>
+	          </div>
+	        </div>
+	      </a>
+	    {% endfor %}
+	    {% for username in object.social_accounts.instagram %}
+	      <a href='https://instagram.com/{{ username }}' target='_blank'>
+	        <div class='relative flex justify-between items-center shadow rounded-lg border border-gray p-4 mb-8
+	            filter brightness-100 hover:brightness-50 transition-all'
+	             style='background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);'>
+	          <div class='w-16 h-16 flex justify-center items-center bg-white rounded-full border border-gray'>
+	            <i class='fab fa-instagram text-4xl'
+	               style='
+	                  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);
+	                  -webkit-background-clip: text;
+	                  -webkit-text-fill-color: transparent;
+	              '></i>
+	          </div>
+	          <div class='flex justify-center items-center'>
+	            <h4 class='text-white'>
+	              {{ username }}
+	            </h4>
+	          </div>
+	        </div>
+	      </a>
+	    {% endfor %}
+	    {% for username in object.social_accounts.twitter %}
+	      <a href='https://twitter.com/{{ username }}' target='_blank'>
+	        <div class='relative flex justify-between items-center shadow rounded-lg border p-4 mb-8
+	            filter brightness-100 hover:brightness-50 transition-all
+							border-gray'
+	             style='background-color: #1DA1F2'>
+	          <div class='w-16 h-16 flex justify-center items-center bg-white rounded-full border
+	              border-gray'>
+	            <i class='fab fa-twitter text-4xl' style='color: #1DA1F2;'></i>
+	          </div>
+	          <div class='flex justify-center items-center'>
+	            <h4 class='text-white'>
+	              {{ username }}
+	            </h4>
+	          </div>
+	        </div>
+	      </a>
+	    {% endfor %}
+      {% if object.website %}
+        <a href='{{ object.website }}' target='_blank'>
+          <div class='relative flex justify-between items-center shadow rounded-lg border p-4 mb-8
+              filter brightness-100 hover:brightness-50 transition-all
+							border-gray'
+               style='background-color: #ffffff'>
+            <div class='w-16 h-16 flex justify-center items-center bg-black rounded-full border
+                border-gray'>
+              <i class='fal fa-globe-europe text-4xl' style='color: #ffffff;'></i>
+            </div>
+            <div class='flex justify-center items-center'>
+              <h4 class='text-black'>
+                {{ object.website }}
+              </h4>
+            </div>
+          </div>
+        </a>
+      {% endif %}
+    </div>
+    {% if request.user == object %}
+	    <div class='filter brightness-75'>
+		    {% if not object.social_accounts.github %}
+		      <a href='{% url "profile:custom_socialaccount_connections" %}'>
+		        <div class='relative flex justify-between items-center shadow rounded-lg border p-4 mb-8
+		            filter brightness-100 hover:brightness-50 transition-all
+								border-gray'
+		             style='background-color: #333'>
+		          <div class='w-16 h-16 flex justify-center items-center bg-white rounded-full border
+		              border-gray'>
+		            <i class='fab fa-github text-4xl' style='color: #333;'></i>
+		          </div>
+		          <div class='flex justify-center items-center'>
+		            <h4 class='text-white'>
+			            {% trans 'Add Github' %}
+		            </h4>
+		          </div>
+		        </div>
+		      </a>
+		    {% endif %}
+		    {% if not object.social_accounts.instagram %}
+		      <a href='{% url "profile:custom_socialaccount_connections" %}'>
+		        <div class='relative flex justify-between items-center shadow rounded-lg border border-gray p-4 mb-8
+		            filter brightness-100 hover:brightness-50 transition-all'
+		             style='background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);'>
+		          <div class='w-16 h-16 flex justify-center items-center bg-white rounded-full border border-gray'>
+		            <i class='fab fa-instagram text-4xl'
+		               style='
+		                  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);
+		                  -webkit-background-clip: text;
+		                  -webkit-text-fill-color: transparent;
+		              '></i>
+		          </div>
+		          <div class='flex justify-center items-center'>
+		            <h4 class='text-white'>
+			            {% trans 'Add Instagram' %}
+		            </h4>
+		          </div>
+		        </div>
+		      </a>
+		    {% endif %}
+		    {% if not object.social_accounts.twitter %}
+		      <a href='{% url "profile:custom_socialaccount_connections" %}'>
+		        <div class='relative flex justify-between items-center shadow rounded-lg border p-4 mb-8
+		            filter brightness-100 hover:brightness-50 transition-all
+								border-gray'
+		             style='background-color: #1DA1F2'>
+		          <div class='w-16 h-16 flex justify-center items-center bg-white rounded-full border
+		              border-gray'>
+		            <i class='fab fa-twitter text-4xl' style='color: #1DA1F2;'></i>
+		          </div>
+		          <div class='flex justify-center items-center'>
+		            <h4 class='text-white'>
+			            {% trans 'Add Twitter' %}
+		            </h4>
+		          </div>
+		        </div>
+		      </a>
+		    {% endif %}
+		    {% if not object.website %}
+		      <a href='{% url "profile:edit_profile" %}'>
+		        <div class='relative flex justify-between items-center shadow rounded-lg border p-4 mb-8
+		            filter brightness-100 hover:brightness-50 transition-all
+								border-gray'
+		             style='background-color: #ffffff'>
+		          <div class='w-16 h-16 flex justify-center items-center bg-black rounded-full border
+		              border-gray'>
+		            <i class='fal fa-globe-europe text-4xl' style='color: #ffffff;'></i>
+		          </div>
+		          <div class='flex justify-center items-center'>
+		            <h4 class='text-black'>
+			            {% trans 'Add website' %}
+		            </h4>
+		          </div>
+		        </div>
+		      </a>
+	      {% endif %}
+	    </div>
+    {% endif %}
+  </section>
+	{% if object.paypal_merchant_id %}
+		<script
+			src='https://www.paypal.com/sdk/js?&client-id={{ paypal_client_id }}&merchant-id={{ object.paypal_merchant_id }}&currency={{ object.currency }}';>
+		</script>
+	{% endif %}
+	<script src="https://js.stripe.com/v3/"></script>
+  <script>
+		const stripeElement = document.getElementById('stripe-payment-element');
+		const stripeElementShimmer = document.getElementById('stripe-payment-element-shimmer');
+    const stripeOverlay = document.getElementById('stripe-overlay');
+    const stripeOverlayContent = document.getElementById('stripe-overlay-content');
+    const chargingAmount = document.getElementById('charging-amount');
+		const paypalButton = document.getElementById('paypal-button-container');
+		const paypalButtonShimmer = document.getElementById('paypal-button-shimmer');
+    const paypalOverlay = document.getElementById('paypal-overlay');
+    const paypalOverlayContent = document.getElementById('paypal-overlay-content');
+    const chargingAmountPaypal = document.getElementById('charging-amount-paypal');
+		function showPaymentOverlay() {
+			document.getElementById('paymentOverlay').classList.remove('hidden');
+		}
+		function hidePaymentOverlay() {
+			document.getElementById('paymentOverlay').classList.add('hidden');
+		}
+		function showStripeOverlay() {
+      stripeOverlay.classList.add('z-40');
+      stripeOverlay.classList.add('opacity-100');
+	    stripeOverlayContent.classList.remove('translate-y-40');
+      hideBodyOverflow();
+	    setTimeout(() => {
+	      stripeElementShimmer.classList.add('hidden');
+	      stripeElement.classList.remove('hidden');
+	    }, 2000);
+		}
+		function hideStripeOverlay() {
+      stripeOverlay.classList.remove('z-40');
+      stripeOverlay.classList.remove('opacity-100');
+	    stripeOverlayContent.classList.add('translate-y-40');
+      showBodyOverflow();
+	    setTimeout(() => {
+	      stripeElementShimmer.classList.remove('hidden');
+	      stripeElement.classList.add('hidden');
+	    }, 2000);
+		}
+		function showPaypalOverlay() {
+      paypalOverlay.classList.add('z-40');
+      paypalOverlay.classList.add('opacity-100');
+	    paypalOverlayContent.classList.remove('translate-y-40');
+      hideBodyOverflow();
+	    setTimeout(() => {
+	      paypalButtonShimmer.classList.add('hidden');
+	      paypalButton.classList.remove('hidden');
+	    }, 2000);
+		}
+		function hidePaypalOverlay() {
+      paypalOverlay.classList.remove('z-40');
+      paypalOverlay.classList.remove('opacity-100');
+	    paypalOverlayContent.classList.add('translate-y-40');
+      showBodyOverflow();
+	    setTimeout(() => {
+	      paypalButtonShimmer.classList.remove('hidden');
+	      paypalButton.classList.add('hidden');
+				paypalButton.innerHTML = '';
+	    }, 100);
+		}
+    document.body.addEventListener('showStripe', function(evt){
+      showStripeOverlay();
+    });
+    // document.body.addEventListener('showPaypal', function(evt){
+    // });
+  </script>
+{% endblock %}
+<!--div>
+	<div id="root">
+		<div class="p-PaymentElement is-animatable">
+			<div class="p-HeightObserver">
+				<div class="p-PaymentElement-container" style="position: relative; margin: 4px;">
+					<div class="p-Fade">
+						<div class="p-Fade-item">
+							<div id="card-panel" class="p-PaymentDetails p-PaymentElement-content" aria-hidden="false" role="tabpanel" aria-labelledby="card-tab" data-selected-payment-method="card">
+								<div class="p-PaymentDetails-group">
+									<div>
+										<div class="p-Grid p-CardForm">
+											<div class="p-GridCell p-GridCell--12 p-GridCell--lg6">
+											<div class="p-Field" data-field="number">
+												<label class="p-Label Label Label--empty" for="Field-numberInput">Card number</label>
+												<div>
+													<div class="p-CardNumberInput">
+														<div class="p-Input">
+															<input type="text" name="number" id="Field-numberInput" placeholder="1234 1234 1234 1234" autocomplete="billing cc-number" inputmode="numeric" aria-invalid="false" aria-required="true" class="p-Input-input Input p-CardNumberInput-input Input--empty" value="" style="padding-right: 51.2px;">
+														</div>
+														<div class="p-CardIcons Input">
+															<div style="position: relative;">
+																<div class="p-CardBrandIcons p-CardBrandIcons--loaded">
+																	<div class="p-CardBrandIcons-item p-CardBrandIcons-more">
+																		<img class="p-CardBrandIcon p-CardBrandIcon--visible" role="presentation" src="https://js.stripe.com/v3/fingerprinted/img/visa-365725566f9578a9589553aa9296d178.svg" focusable="false">
+																		<img class="p-CardBrandIcon" role="presentation" src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg" focusable="false">
+																		<img class="p-CardBrandIcon" role="presentation" src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg" focusable="false">
+																		<img class="p-CardBrandIcon" role="presentation" src="https://js.stripe.com/v3/fingerprinted/img/discover-ac52cd46f89fa40a29a0bfb954e33173.svg" focusable="false">
+																		<img class="p-CardBrandIcon" role="presentation" src="https://js.stripe.com/v3/fingerprinted/img/diners-fbcbd3360f8e3f629cdaa80e93abdb8b.svg" focusable="false">
+																		<img class="p-CardBrandIcon" role="presentation" src="https://js.stripe.com/v3/fingerprinted/img/jcb-271fd06e6e7a2c52692ffa91a95fb64f.svg" focusable="false">
+																		<img class="p-CardBrandIcon" role="presentation" src="https://js.stripe.com/v3/fingerprinted/img/unionpay-8a10aefc7295216c338ba4e1224627a1.svg" focusable="false">
+																		<img class="p-CardBrandIcon" role="presentation" src="https://js.stripe.com/v3/fingerprinted/img/elo-efe873e884e6c9eb817f23a120caaa3e.svg" focusable="false">
+																	</div>
+																</div>
+																<div class="p-CardKnownIcon"></div>
+																<div class="p-CardErrorIcon">
+																	<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="var(--colorIconCardError)" role="presentation">
+																		<path opacity=".4" fill-rule="evenodd" clip-rule="evenodd" d="M15.337 4A5.5 5.5 0 1023 11.663V18a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h12.337zm6.707.293c.239.202.46.424.662.663a2.01 2.01 0 00-.662-.663zM3 9a1 1 0 011-1h5a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V9z"></path>
+																		<path opacity=".6" fill-rule="evenodd" clip-rule="evenodd" d="M4 15a1 1 0 100 2h1.5a1 1 0 100-2H4zm4.8 0a1 1 0 100 2h1.5a1 1 0 100-2H8.8zm3.8 1a1 1 0 011-1h1.5a1 1 0 110 2h-1.5a1 1 0 01-1-1zm5.9-1a1 1 0 100 2H20a1 1 0 100-2h-1.5z"></path>
+																		<path fill-rule="evenodd" clip-rule="evenodd" d="M18.5 14a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm0-1.719a1.031 1.031 0 100-2.062 1.031 1.031 0 000 2.062zm0-7.906a.687.687 0 00-.688.688V8.5a.687.687 0 101.375 0V5.062a.687.687 0 00-.687-.687z"></path>
+																	</svg>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="p-GridCell p-GridCell--6 p-GridCell--lg3">
+											<div class="p-Field" data-field="expiry">
+												<label class="p-Label Label Label--empty" for="Field-expiryInput">Expiry</label>
+												<div>
+													<div class="p-Input">
+														<input type="text" name="expiry" id="Field-expiryInput" placeholder="MM / YY" autocomplete="billing cc-exp" inputmode="numeric" aria-invalid="false" aria-required="true" class="p-Input-input Input Input--empty" value="">
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="p-GridCell p-GridCell--6 p-GridCell--lg3">
+												<div class="p-Field" data-field="cvc">
+													<label class="p-Label Label Label--empty" for="Field-cvcInput">CVC</label>
+													<div>
+														<div class="p-CardCvcInput">
+															<div class="p-Input">
+																<input type="text" name="cvc" id="Field-cvcInput" placeholder="CVC" autocomplete="billing cc-csc" inputmode="numeric" aria-invalid="false" aria-required="true" class="p-Input-input Input Input--empty" value="" style="padding-right: 2em;">
+															</div>
+															<div class="p-CardCvcIcons Input">
+																<div class="p-CardCvcIcons-group c-InputPadding">
+																	<svg class="p-CardCvcIcons-svg" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="var(--colorIconCardCvc)" role="presentation">
+																		<path opacity=".2" fill-rule="evenodd" clip-rule="evenodd" d="M15.337 4A5.493 5.493 0 0013 8.5c0 1.33.472 2.55 1.257 3.5H4a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1v-.6a5.526 5.526 0 002-1.737V18a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h12.337zm6.707.293c.239.202.46.424.662.663a2.01 2.01 0 00-.662-.663z"></path>
+																		<path opacity=".4" fill-rule="evenodd" clip-rule="evenodd" d="M13.6 6a5.477 5.477 0 00-.578 3H1V6h12.6z"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M18.5 14a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm-2.184-7.779h-.621l-1.516.77v.786l1.202-.628v3.63h.943V6.22h-.008zm1.807.629c.448 0 .762.251.762.613 0 .393-.37.668-.904.668h-.235v.668h.283c.565 0 .95.282.95.691 0 .393-.377.66-.911.66-.393 0-.786-.126-1.194-.37v.786c.44.189.88.291 1.312.291 1.029 0 1.736-.526 1.736-1.288 0-.535-.33-.967-.88-1.14.472-.157.778-.573.778-1.045 0-.738-.652-1.241-1.595-1.241a3.143 3.143 0 00-1.234.267v.77c.378-.212.763-.33 1.132-.33zm3.394 1.713c.574 0 .974.338.974.778 0 .463-.4.785-.974.785-.346 0-.707-.11-1.076-.337v.809c.385.173.778.26 1.163.26.204 0 .392-.032.573-.08a4.313 4.313 0 00.644-2.262l-.015-.33a1.807 1.807 0 00-.967-.252 3 3 0 00-.448.032V6.944h1.132a4.423 4.423 0 00-.362-.723h-1.587v2.475a3.9 3.9 0 01.943-.133z"></path>
+																	</svg>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="p-Grid p-BillingAddressForm u-mt-grid">
+											<div class="p-GridCell p-GridCell--12">
+												<div class="p-Field" data-field="country">
+													<label class="p-Label Label" for="Field-countryInput">Country</label>
+													<div>
+														<div class="p-Select">
+															<select name="country" id="Field-countryInput" autocomplete="billing country" inputmode="text" aria-invalid="false" aria-required="true" class="Input p-Select-select" dir="ltr" style="padding-right: calc(var(--c-inputPaddingRight) + 0.8em + 0.2em);">
+															</select>
+															<div class="p-InputIcon u-right c-InputPadding c-InputFontSize c-InputFontColor c-InputTransparentBorder">
+																<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" fill="var(--colorIconChevronDown)" role="presentation" style="width: 0.8em; height: 0.8em;">
+																	<path d="M10.193 3.97a.75.75 0 0 1 1.062 1.062L6.53 9.756a.75.75 0 0 1-1.06 0L.745 5.032A.75.75 0 0 1 1.807 3.97L6 8.163l4.193-4.193z" fill-rule="evenodd">
+																	</path>
+																</svg>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div-->

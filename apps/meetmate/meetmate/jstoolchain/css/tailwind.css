@@ -1,0 +1,702 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  button {
+    @apply transition-all rounded;
+  }
+  button:focus-visible {
+		box-shadow: rgb(255 255 255) 0 0 0 3px, rgb(113 113 113) 0 0 0 5px, rgb(255 255 255) 0 0 0 6px;
+		outline: none;
+  }
+  h1 {
+    @apply text-3xl md:text-4xl mb-4 ;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl mb-3;
+  }
+  h3 {
+    @apply text-xl md:text-2xl mb-2;
+  }
+  h4 {
+    @apply md:text-xl md:mb-1;
+  }
+  p {
+		@apply mb-1
+  }
+  textarea,
+  input,
+  input[type] {
+		-webkit-appearance: none;
+	    -moz-appearance: none;
+	    appearance: none;
+  }
+  .unselectable {
+		-webkit-user-select: none; /* Safari */
+		-moz-user-select: none; /* Firefox */
+		-ms-user-select: none; /* IE10+/Edge */
+		user-select: none; /* Standard */
+  }
+}
+@layer responsive {
+	.full-height {
+		height: calc(100vh - 4.65rem);
+	}
+  .shadow-all {
+    box-shadow: 0 0 4px #d3d3d3;
+  }
+}
+@screen md {
+	.full-height {
+		height: calc(100vh - 64px);
+	}
+}
+@screen lg {
+}
+@layer utilities {
+	.second-border-gray {
+		box-shadow: 0px 0px 0px 2px #c0c0c0;
+	}
+	.white-shadow {
+		-webkit-box-shadow: 0px 0px 12px 2px rgb(255 255 255 / 80%);
+	  -moz-box-shadow: 0px 0px 12px 2px rgb(255 255 255 / 80%);
+	  box-shadow: 0px 0px 12px 2px rgb(255 255 255 / 80%);
+	}
+	.overlay-dark-bg {
+		background-color: rgba(0, 0, 0, 0.5);
+	}
+	.input-white-bg:-webkit-autofill {
+		-webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+	}
+	.input-white-bg:-webkit-autofill:hover {
+		-webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+	}
+	.input-white-bg:-webkit-autofill:focus {
+		-webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+	}
+	.focus-visible-black-space-border:focus-visible {
+		box-shadow: rgb(255 255 255) 0 0 0 3px, rgb(113 113 113) 0 0 0 5px, rgb(255 255 255) 0 0 0 6px;
+		outline: none;
+	}
+	.box-shadow-border-red:focus {
+		box-shadow: 0 0 0 1px #DC2626;
+	}
+	.absolute-y-center {
+		top: 50%;
+		transform: translateY(-50%);
+	}
+	.absolute-x-center {
+		left: 50%;
+		transform: translateX(-50%);
+	}
+}
+
+
+@layer base {
+  button {
+    @apply transition-all rounded;
+  }
+  button:focus-visible {
+		box-shadow: rgb(255 255 255) 0 0 0 3px, rgb(113 113 113) 0 0 0 5px, rgb(255 255 255) 0 0 0 6px;
+		outline: none;
+  }
+  h1 {
+    @apply text-3xl md:text-4xl mb-4 ;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl mb-3;
+  }
+  h3 {
+    @apply text-xl md:text-2xl mb-2;
+  }
+  h4 {
+    @apply md:text-xl md:mb-1;
+  }
+  p {
+		@apply mb-1
+  }
+  textarea,
+  input,
+  input[type] {
+		-webkit-appearance: none;
+	    -moz-appearance: none;
+	    appearance: none;
+  }
+  .unselectable {
+		-webkit-user-select: none; /* Safari */
+		-moz-user-select: none; /* Firefox */
+		-ms-user-select: none; /* IE10+/Edge */
+		user-select: none; /* Standard */
+  }
+}
+@layer responsive {
+	.full-height {
+		height: calc(100vh - 4.65rem);
+	}
+  .shadow-all {
+    box-shadow: 0 0 4px #d3d3d3;
+  }
+}
+@screen md {
+	.full-height {
+		height: calc(100vh - 64px);
+	}
+}
+@screen lg {
+}
+@layer utilities {
+	.second-border-gray {
+		box-shadow: 0px 0px 0px 2px #c0c0c0;
+	}
+	.white-shadow {
+		-webkit-box-shadow: 0px 0px 12px 2px rgb(255 255 255 / 80%);
+	  -moz-box-shadow: 0px 0px 12px 2px rgb(255 255 255 / 80%);
+	  box-shadow: 0px 0px 12px 2px rgb(255 255 255 / 80%);
+	}
+	.overlay-dark-bg {
+		background-color: rgba(0, 0, 0, 0.5);
+	}
+	.input-white-bg:-webkit-autofill {
+		-webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+	}
+	.input-white-bg:-webkit-autofill:hover {
+		-webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+	}
+	.input-white-bg:-webkit-autofill:focus {
+		-webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+	}
+	.focus-visible-black-space-border:focus-visible {
+		box-shadow: rgb(255 255 255) 0 0 0 3px, rgb(113 113 113) 0 0 0 5px, rgb(255 255 255) 0 0 0 6px;
+		outline: none;
+	}
+	.box-shadow-border-red:focus {
+		box-shadow: 0 0 0 1px #DC2626;
+	}
+	.absolute-y-center {
+		top: 50%;
+		transform: translateY(-50%);
+	}
+	.absolute-x-center {
+		left: 50%;
+		transform: translateX(-50%);
+	}
+}
+
+@layer components {
+	.hoverable-gray-black {
+		@apply text-gray-400 hover:text-black transition-colors cursor-pointer
+	}
+	.hoverable-gray-black {
+		@apply text-gray-400 hover:text-black transition-colors cursor-pointer
+	}
+	.form-label-group {
+		@apply relative cursor-text z-0
+	}
+	.form-label-group > label {
+		@apply p-3 absolute top-0.5 left-0 block mb-0 text-gray-400 rounded transition-all select-none cursor-text
+	}
+	.form-label-group input:not(:placeholder-shown)~label {
+		@apply pt-0.5 text-xs pb-0
+	}
+	.form-label-group > input {
+		@apply p-3 rounded border border-gray-300 focus:border-black w-full bg-transparent input-white-bg
+	}
+	.form-label-group > input.error{
+		@apply border-2 border-red-400
+	}
+	.form-label-group > input::placeholder{
+		@apply p-3 text-transparent
+	}
+	.form-label-group input:not(:placeholder-shown) {
+		@apply pt-4.5 pb-1.5
+	}
+
+	.form-label-group-lg {
+		@apply relative cursor-text z-0
+	}
+	.form-label-group-lg > label {
+		@apply p-4 absolute top-0 left-0 block mb-0 text-gray-400 rounded transition-all select-none cursor-text text-lg
+	}
+	.form-label-group-lg.error > label {
+		@apply font-bold text-red-400
+	}
+	.form-label-group-lg input:not(:placeholder-shown)~label {
+		@apply pt-2 text-sm pb-0
+	}
+	.form-label-group-lg > input {
+		@apply p-4 rounded border-2 border-black focus:border-black w-full bg-white input-white-bg text-lg
+	}
+	.form-label-group-lg.error > input {
+		@apply border border-red-400 focus:outline-none box-shadow-border-red
+	}
+	.form-label-group-lg > input::placeholder {
+		@apply p-4 text-transparent
+	}
+	.form-label-group-lg input:not(:placeholder-shown) {
+		@apply pt-6 pb-2
+	}
+
+	.form-label-group-lg textarea:not(:placeholder-shown)~label {
+		@apply pt-2 text-sm pb-0
+	}
+	.form-label-group-lg > textarea {
+		@apply p-4 rounded border-2 border-black focus:border-black w-full bg-white input-white-bg text-lg
+	}
+	.form-label-group-lg.error > textarea {
+		@apply border border-red-400 focus:outline-none box-shadow-border-red
+	}
+	.form-label-group-lg > textarea::placeholder {
+		@apply p-4 text-transparent
+	}
+	.form-label-group-lg textarea:not(:placeholder-shown) {
+		@apply pt-6 pb-2
+	}
+
+	.form-label-group select:not(:placeholder-shown)~label {
+		@apply pt-0.5 text-xs pb-0 pr-0
+	}
+	.form-label-group > select {
+		@apply p-3 rounded border border-gray-300 focus:border-black w-full transition-all bg-transparent
+	}
+	.form-label-group > select.error {
+		@apply border-2 border-red-400
+	}
+	.form-label-group > select::placeholder{
+		@apply p-3 text-transparent
+	}
+	.form-label-group select:not(:placeholder-shown) {
+		@apply pt-4.5 pb-1.5
+	}
+
+	.form-label-group textarea:not(:placeholder-shown)~label {
+		@apply pt-0.5 text-xs pb-0 pr-0
+	}
+	.form-label-group > textarea {
+		@apply p-3 rounded border border-gray-300 focus:border-black w-full bg-transparent
+	}
+	.form-label-group > textarea.error {
+		@apply border-2 border-red-400
+	}
+	.form-label-group > textarea::placeholder{
+		@apply p-3 text-transparent
+	}
+	.form-label-group textarea:not(:placeholder-shown) {
+		@apply pt-4.5 pb-1.5
+	}
+
+	.text-primary-bg {
+		@apply text-white
+	}
+	.link-primary {
+		@apply cursor-pointer text-primary-400 hover:text-primary-700 transition-all
+	}
+	.link-gray {
+		@apply cursor-pointer text-gray-400 hover:text-black transition-all
+	}
+	.button-white {
+		@apply text-black bg-white hover:bg-black hover:text-white border border-black transition-all cursor-pointer
+	}
+	.button-light-dark {
+		@apply text-black bg-black bg-opacity-10 hover:bg-opacity-20 transition-all cursor-pointer
+	}
+	.button-secondary {
+		@apply bg-green-400 hover:bg-white text-white hover:text-green-400 border border-solid border-green-400 transition-all
+	}
+	.button-secondary-outline {
+		@apply bg-white hover:bg-green-400 text-green-400 hover:text-white border border-solid border-green-400 transition-all
+	}
+	.button-red-outline {
+		@apply bg-white hover:bg-red-500 text-red-500 hover:text-white border border-solid border-red-500 transition-all
+	}
+	.button-red-outline-no-hover {
+		@apply bg-white text-red-500 border border-solid border-red-500
+	}
+	.input-error {
+		@apply border border-red-400
+	}
+	.edge-to-edge-container {
+		@apply py-4 mb-4 px-3 md:px-6 md:py-6 xl:px-12 xl:py-12
+	}
+	.dark-overlay {
+		@apply fixed inset-0 bg-black bg-opacity-60 -z-1 opacity-0 transition-opacity duration-300
+	}
+	.button {
+		@apply rounded py-2 focus:outline-none transition duration-300 focus-visible-black-space-border disabled:opacity-50
+	}
+	.button-sm {
+		@apply px-3 py-2
+	}
+	.button-md {
+		@apply px-4 py-3
+	}
+	.button-lg {
+		@apply px-5 py-4
+	}
+	.button-rounded {
+		@apply rounded-full
+	}
+	.button-transparent {
+
+	}
+	.button-white {
+
+	}
+	.button-invisible-white {
+		@apply bg-white hover:bg-black hover:bg-opacity-20 transition disabled:bg-white disabled:bg-white disabled:opacity-50
+	}
+	.button-primary {
+		@apply bg-primary-400 hover:bg-white text-white hover:text-primary-400 border border-solid border-primary-400 transition-all
+		disabled:bg-primary-400 disabled:text-white disabled:opacity-50
+	}
+	.button-primary-lighter {
+		@apply bg-primary-400 hover:bg-primary-300 text-white border border-solid border-primary-400 hover:border-primary-300
+		disabled:bg-primary-400 disabled:bg-primary-400 disabled:border-primary-400 disabled:opacity-50
+	}
+	.button-primary-darker {
+		@apply bg-primary-400 hover:bg-primary-600 text-white border border-solid border-primary-400 hover:border-primary-600
+		disabled:bg-primary-400 disabled:bg-primary-400 disabled:border-primary-400 disabled:opacity-50 border-2 border-black
+		text-black
+	}
+	.button-primary-outline {
+		@apply cursor-pointer border border-solid transition-colors bg-white hover:bg-primary-400 text-primary-400 hover:text-white
+		border-primary-400
+		disabled:bg-white disabled:text-primary-400 disabled:opacity-50
+	}
+	.button-primary-outline-nothing {
+		@apply bg-white text-primary-400 border border-solid border-primary-400 disabled:bg-white
+		disabled:text-primary-400 disabled:opacity-50
+	}
+	.button-white-light {
+		@apply text-black border border-solid border-gray-300 bg-black bg-opacity-0 hover:bg-opacity-10
+		transition-all disabled:bg-opacity-20 disabled:opacity-50
+	}
+	.button-gray-outline-black {
+		@apply bg-white text-gray-600 border-2 border-solid border-gray-300 hover:border-black
+		disabled:bg-white disabled:text-gray-600 disabled:border-gray-300 disabled:opacity-50
+	}
+	.button-red {
+		@apply transition-all disabled:opacity-50
+		bg-red-500 hover:bg-red-800 text-white
+		disabled:bg-red-600 disabled:text-white
+	}
+	.button-green {
+		@apply transition-all disabled:opacity-50
+		bg-green-500 hover:bg-green-800 text-white
+		disabled:bg-green-600 disabled:text-white
+	}
+
+	.settings-label {
+		@apply inline-block text-lg mb-2 cursor-pointer
+	}
+	.settings-input {
+		@apply w-full bg-white border border-gray-300 rounded p-3 input-white-bg
+	}
+	.settings-select {
+		@apply w-full bg-white border border-gray-300 rounded p-3.5 input-white-bg
+	}
+	.settings-input.error {
+		@apply border-red-300
+	}
+
+	.contact-label {
+		@apply block text-lg text-gray-600 cursor-pointer mb-2
+	}
+	.contact-label.error {
+		@apply text-red-300
+	}
+	.contact-input {
+		@apply w-full border border-gray-200 rounded p-4 text-lg
+	}
+	.contact-input.error {
+		@apply border-red-300
+	}
+
+	.full-card {
+		@apply w-full bg-white border border-gray-100 shadow rounded px-3 py-6 md:px-6 mb-8
+	}
+
+	.card {
+		@apply bg-white px-3 py-6 md:px-6 border border-gray-100 shadow rounded
+	}
+
+	.fancy-alert-icon {
+
+	}
+	.settings-input {
+		@apply w-full bg-white border border-gray-300 rounded p-3 input-white-bg
+	}
+	.settings-select {
+		@apply w-full bg-white border border-gray-300 rounded p-3.5 input-white-bg
+	}
+	.settings-input.error {
+		@apply border-red-300
+	}
+
+	.contact-label {
+		@apply block text-lg text-gray-600 cursor-pointer mb-2
+	}
+	.contact-label.error {
+		@apply text-red-300
+	}
+	.contact-input {
+		@apply w-full border border-gray-200 rounded p-4 text-lg
+	}
+	.contact-input.error {
+		@apply border-red-300
+	}
+
+	.full-card {
+		@apply w-full bg-white border border-gray-100 shadow rounded px-3 py-6 md:px-6 mb-8
+	}
+
+	.card {
+		@apply bg-white px-3 py-6 md:px-6 border border-gray-100 shadow rounded
+	}
+
+	.fancy-alert-icon {
+
+	}
+}
+
+/*@layer components {*/
+/*	.hoverable-gray-black {*/
+/*		@apply text-gray-400 hover:text-black transition-colors cursor-pointer*/
+/*	}*/
+
+/*	.hoverable-gray-black {*/
+/*		@apply text-gray-400 hover:text-black transition-colors cursor-pointer*/
+/*	}*/
+
+/*	.form-label-group {*/
+/*		@apply relative cursor-text z-0*/
+/*	}*/
+
+/*	.form-label-group > label {*/
+/*		@apply p-3 absolute top-0.5 left-0 block mb-0 text-gray-400 rounded transition-all select-none cursor-text*/
+/*	}*/
+
+/*	.form-label-group input:not(:placeholder-shown) ~ label {*/
+/*		@apply pt-0.5 text-xs pb-0*/
+/*	}*/
+
+/*	.form-label-group > input {*/
+/*		@apply p-3 rounded border border-gray-300 focus:border-black w-full bg-transparent input-white-bg*/
+/*	}*/
+
+/*	.form-label-group > input.error {*/
+/*		@apply border-2 border-red-400*/
+/*	}*/
+
+/*	.form-label-group > input::placeholder {*/
+/*		@apply p-3 text-transparent*/
+/*	}*/
+
+/*	.form-label-group input:not(:placeholder-shown) {*/
+/*		@apply pt-4.5 pb-1.5*/
+/*	}*/
+
+/*	.form-label-group-lg {*/
+/*		@apply relative cursor-text z-0*/
+/*	}*/
+
+/*	.form-label-group-lg > label {*/
+/*		@apply p-4 absolute top-0 left-0 block mb-0 text-gray-400 rounded transition-all select-none cursor-text text-lg*/
+/*	}*/
+
+/*	.form-label-group-lg.error > label {*/
+/*		@apply font-bold text-red-400*/
+/*	}*/
+
+/*	.form-label-group-lg input:not(:placeholder-shown) ~ label {*/
+/*		@apply pt-2 text-sm pb-0*/
+/*	}*/
+
+/*	.form-label-group-lg > input {*/
+/*		@apply p-4 rounded border border-gray-300 focus:border-black w-full bg-transparent input-white-bg text-lg*/
+/*	}*/
+
+/*	.form-label-group-lg.error > input {*/
+/*		@apply border border-red-400 focus:outline-none box-shadow-border-red*/
+/*	}*/
+
+/*	.form-label-group-lg > input::placeholder {*/
+/*		@apply p-4 text-transparent*/
+/*	}*/
+
+/*	.form-label-group-lg input:not(:placeholder-shown) {*/
+/*		@apply pt-6 pb-2*/
+/*	}*/
+
+/*	.form-label-group select:not(:placeholder-shown) ~ label {*/
+/*		@apply pt-0.5 text-xs pb-0 pr-0*/
+/*	}*/
+
+/*	.form-label-group > select {*/
+/*		@apply p-3 rounded border border-gray-300 focus:border-black w-full transition-all bg-transparent*/
+/*	}*/
+
+/*	.form-label-group > select.error {*/
+/*		@apply border-2 border-red-400*/
+/*	}*/
+
+/*	.form-label-group > select::placeholder {*/
+/*		@apply p-3 text-transparent*/
+/*	}*/
+
+/*	.form-label-group select:not(:placeholder-shown) {*/
+/*		@apply pt-4.5 pb-1.5*/
+/*	}*/
+
+/*	.form-label-group textarea:not(:placeholder-shown) ~ label {*/
+/*		@apply pt-0.5 text-xs pb-0 pr-0*/
+/*	}*/
+
+/*	.form-label-group > textarea {*/
+/*		@apply p-3 rounded border border-gray-300 focus:border-black w-full bg-transparent*/
+/*	}*/
+
+/*	.form-label-group > textarea.error {*/
+/*		@apply border-2 border-red-400*/
+/*	}*/
+
+/*	.form-label-group > textarea::placeholder {*/
+/*		@apply p-3 text-transparent*/
+/*	}*/
+
+/*	.form-label-group textarea:not(:placeholder-shown) {*/
+/*		@apply pt-4.5 pb-1.5*/
+/*	}*/
+
+/*	.text-primary-bg {*/
+/*		@apply text-white*/
+/*	}*/
+
+/*	.link-primary {*/
+/*		@apply cursor-pointer text-primary-400 hover:text-primary-700 transition-all*/
+/*	}*/
+
+/*	.link-gray {*/
+/*		@apply cursor-pointer text-gray-400 hover:text-black transition-all*/
+/*	}*/
+
+/*	.button-white {*/
+/*		@apply text-black bg-white hover:bg-black hover:text-white border border-black transition-all cursor-pointer*/
+/*	}*/
+
+/*	.button-light-dark {*/
+/*		@apply text-black bg-black bg-opacity-10 hover:bg-opacity-20 transition-all cursor-pointer*/
+/*	}*/
+
+/*	.button-secondary {*/
+/*		@apply bg-green-400 hover:bg-white text-white hover:text-green-400 border border-solid border-green-400 transition-all*/
+/*	}*/
+
+/*	.button-secondary-outline {*/
+/*		@apply bg-white hover:bg-green-400 text-green-400 hover:text-white border border-solid border-green-400 transition-all*/
+/*	}*/
+
+/*	.button-red-outline {*/
+/*		@apply bg-white hover:bg-red-500 text-red-500 hover:text-white border border-solid border-red-500 transition-all*/
+/*	}*/
+
+/*	.button-red-outline-no-hover {*/
+/*		@apply bg-white text-red-500 border border-solid border-red-500*/
+/*	}*/
+
+/*	.input-error {*/
+/*		@apply border border-red-400*/
+/*	}*/
+
+/*	.edge-to-edge-container {*/
+/*		@apply py-4 mb-4 px-3 md:px-6 md:py-6 xl:px-12 xl:py-12*/
+/*	}*/
+
+/*	.dark-overlay {*/
+/*		@apply fixed inset-0 bg-black bg-opacity-60 -z-1 opacity-0 transition-opacity duration-300*/
+/*	}*/
+
+/*	.button {*/
+/*		@apply rounded py-2 focus:outline-none transition duration-300 focus-visible-black-space-border disabled:opacity-50*/
+/*	}*/
+
+/*	.button-sm {*/
+/*		@apply px-3 py-2*/
+/*	}*/
+
+/*	.button-md {*/
+/*		@apply px-4 py-3*/
+/*	}*/
+
+/*	.button-lg {*/
+/*		@apply px-5 py-4*/
+/*	}*/
+
+/*	.button-rounded {*/
+/*		@apply rounded-full*/
+/*	}*/
+
+/*	.button-transparent {*/
+
+/*	}*/
+
+/*	.button-white {*/
+
+/*	}*/
+
+/*	.button-invisible-white {*/
+/*		@apply bg-white hover:bg-black hover:bg-opacity-20 transition disabled:bg-white disabled:bg-white disabled:opacity-50*/
+/*	}*/
+
+/*	.button-primary {*/
+/*		@apply bg-primary-400 hover:bg-white text-white hover:text-primary-400 border border-solid border-primary-400 transition-all*/
+/*		disabled:bg-primary-400 disabled:text-white disabled:opacity-50*/
+/*	}*/
+
+/*	.button-primary-lighter {*/
+/*		@apply bg-primary-400 hover:bg-primary-300 text-white border border-solid border-primary-400 hover:border-primary-300*/
+/*		disabled:bg-primary-400 disabled:bg-primary-400 disabled:border-primary-400 disabled:opacity-50*/
+/*	}*/
+
+/*	.button-primary-darker {*/
+/*		@apply bg-primary-400 hover:bg-primary-600 text-white border border-solid border-primary-400 hover:border-primary-600*/
+/*		disabled:bg-primary-400 disabled:bg-primary-400 disabled:border-primary-400 disabled:opacity-50*/
+/*	}*/
+
+/*	.button-primary-outline {*/
+/*		@apply cursor-pointer border border-solid transition-colors bg-white hover:bg-primary-400 text-primary-400 hover:text-white*/
+/*		border-primary-400*/
+/*		disabled:bg-white disabled:text-primary-400 disabled:opacity-50*/
+/*	}*/
+
+/*	.button-primary-outline-nothing {*/
+/*		@apply bg-white text-primary-400 border border-solid border-primary-400 disabled:bg-white*/
+/*		disabled:text-primary-400 disabled:opacity-50*/
+/*	}*/
+
+/*	.button-white-light {*/
+/*		@apply text-black border border-solid border-gray-300 bg-black bg-opacity-0 hover:bg-opacity-10*/
+/*		transition-all disabled:bg-opacity-20 disabled:opacity-50*/
+/*	}*/
+
+/*	.button-gray-outline-black {*/
+/*		@apply bg-white text-gray-600 border-2 border-solid border-gray-300 hover:border-black*/
+/*		disabled:bg-white disabled:text-gray-600 disabled:border-gray-300 disabled:opacity-50*/
+/*	}*/
+
+/*	.button-red {*/
+/*		@apply transition-all disabled:opacity-50*/
+/*		bg-red-500 hover:bg-red-800 text-white*/
+/*		disabled:bg-red-600 disabled:text-white*/
+/*	}*/
+
+/*	.button-green {*/
+/*		@apply transition-all disabled:opacity-50*/
+/*		bg-green-500 hover:bg-green-800 text-white*/
+/*		disabled:bg-green-600 disabled:text-white*/
+/*	}*/
+
+/*	.settings-label {*/
+/*		@apply inline-block text-lg mb-2 cursor-pointer*/
+/*	}*/
+/* }*/

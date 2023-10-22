@@ -1,0 +1,310 @@
+{% extends 'user_profile/base_control_panel.html' %}
+{% load i18n static %}
+{% block title %}{% trans 'Dashboard | Reachmehere' %}{% endblock %}
+{% block og_title %}{% trans 'Dashboard | Reachmehere' %}{% endblock %}
+{% block twitter_title %}{% trans 'Dashboard | Reachmehere' %}{% endblock %}
+{% block name %}{% trans 'Dashboard | Reachmehere' %}{% endblock %}
+{% block overlay %}
+	{% include 'paid_messages/list_overlay.html' %}
+{% endblock %}
+{% block content %}
+	<div class='bg-white edge-to-edge-container shadow'>
+		<div class='flex justify-between items-end pb-4 border-b border-gray-200'>
+			<div>
+				<h2 class='font-semibold mb-0'>
+					{% trans 'Today' %}
+				</h2>
+			</div>
+			<div class='flex flex-col items-end'>
+				<div class='mb-2 text-sm
+						text-gray-600'>
+					{% trans 'For a more detailed dashboard visit:' %}
+				</div>
+				<div class='flex flex-row-reverse'>
+					<div class='flex'>
+						<a href='https://dashboard.stripe.com/' target='_blank'
+								class='button button-sm rounded-full mr-2 text-sm text-white bg-stripe-400 hover:bg-stripe-600'>
+							Stripe
+						</a>
+						<a href='https://www.paypal.com/mep/dashboard' method='get' target='_blank'
+								class='button button-sm rounded-full text-sm text-white bg-paypal-400 hover:bg-paypal-600'>
+							Paypal
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class='mt-8 border-b flex flex-col
+				border-gray-200'>
+			<div class='flex flex-row mb-1'>
+				<div class='mr-16'>
+					<h5 class='text-gray-500 mb-1'>{% trans 'Messages received' %}</h5>
+					<h4 id='todaysLenTotalText' class='text-gray-600'>EUR 20.00</h4>
+				</div>
+				<div>
+					<h5 class='text-gray-500 mb-1'>{% trans 'Yesterday' %}</h5>
+					<h4 id='yesterdaysLenTotalText'class='text-gray-600'>EUR 20.00</h4>
+				</div>
+			</div>
+			<div id='currentTimeMessages' class='text-xs text-gray-500'>
+				14:59
+			</div>
+			<div id='todayMessagesReceived' class='flex-grow'>
+			</div>
+		</div>
+		<div class='mt-8 border-b flex flex-col
+				border-gray-200'>
+			<div class='flex flex-row mb-1'>
+				<div class='mr-16'>
+					<h5 class='text-gray-500 mb-1'>{% trans 'Net volume' %}</h5>
+					<h4 id='todaysMoneyTotalText' class='text-gray-600'>EUR 20.00</h4>
+				</div>
+				<div>
+					<h5 class='text-gray-500 mb-1'>{% trans 'Yesterday' %}</h5>
+					<h4 id='yesterdaysMoneyTotalText' class='text-gray-600'>EUR 20.00</h4>
+				</div>
+			</div>
+			<div id='currentTimeVolume' class='text-xs text-gray-500'>
+				14:59
+			</div>
+			<div id='todayNetVolume' class='flex-grow'>
+			</div>
+		</div>
+		<div class='mt-8'>
+			<h3>{% trans 'Recent messages' %}</h3>
+			<div id='receivedPaidMessages'
+					hx-get='{% url "paid_messages:received" %}'
+					hx-trigger='load'>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block extra_js %}
+	<!--script src='{% static "vendors/chartsjs/chart.min.js" %}'></script-->
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script>
+		const currTime = new Date().toLocaleTimeString();
+		const currentTimeMessages = document.getElementById('currentTimeMessages');
+		const currentTimeVolume = document.getElementById('currentTimeVolume');
+		currentTimeMessages.innerText = currTime;
+		currentTimeVolume.innerText = currTime;
+		const todaysLenTotalText = document.getElementById('todaysLenTotalText');
+		const yesterdaysLenTotalText = document.getElementById('yesterdaysLenTotalText');
+		const todaysMoneyTotalText = document.getElementById('todaysMoneyTotalText');
+		const yesterdaysMoneyTotalText = document.getElementById('yesterdaysMoneyTotalText');
+		let yesterdays_len = JSON.parse('{{ yesterdays_len }}');
+		let todays_len = JSON.parse('{{ todays_len }}');
+		let yesterdays_money = JSON.parse('{{ yesterdays_money }}');
+		let todays_money = JSON.parse('{{ todays_money }}');
+		let yesterdays_len_total = 0;
+		let todays_len_total = 0;
+		let yesterdays_money_total = 0;
+		let todays_money_total = 0;
+		yesterdays_len.forEach((el) => {
+			yesterdays_len_total += el;
+		})
+		todays_len.forEach((el) => {
+			todays_len_total += el;
+		})
+		yesterdays_money.forEach((el) => {
+			yesterdays_money_total += el;
+		})
+		todays_money.forEach((el) => {
+			todays_money_total += el;
+		})
+		todaysLenTotalText.innerText = todays_len_total;
+		yesterdaysLenTotalText.innerText = yesterdays_len_total;
+		todaysMoneyTotalText.innerText = '{{ currency }} ' + todays_money_total;
+		yesterdaysMoneyTotalText.innerText = '{{ currency }} ' + yesterdays_money_total;
+		var options = {
+      series: [{
+	        name: '{% translate "Yesterday" %}',
+	        data: yesterdays_len,
+	      }, {
+	        name: '{% translate "Today" %}',
+          data: todays_len,
+      }],
+      chart: {
+        height: 200,
+	      width: '100%',
+	      toolbar: {
+	        show: false,
+	      },
+        type: 'area',
+				zoom: {
+					enabled: false,
+				},
+      },
+			colors: [
+        '#9c9c9c', '#F472B6',
+			],
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'smooth'
+      },
+			grid: {
+			  show: true,
+			  borderColor: '#f3f4f6',
+			  strokeDashArray: 0,
+			  position: 'back',
+			  xaxis: {
+		      lines: {
+	          show: true
+		      }
+			  },
+			  yaxis: {
+		      lines: {
+	          show: false
+		      }
+			  },
+			  padding: {
+			      top: 0,
+			      right: 0,
+			      bottom: 0,
+			      left: 0
+			  },
+			},
+			legend: {
+				show: false,
+			},
+      xaxis: {
+        type: 'category',
+        categories: [
+          "00:00",
+          "01:00",
+          "02:00",
+          "03:00",
+          "04:00",
+          "05:00",
+          "06:00",
+          "07:00",
+          "08:00",
+          "09:00",
+          "10:00",
+          "11:00",
+          "12:00",
+          "13:00",
+          "14:00",
+          "15:00",
+          "16:00",
+          "17:00",
+          "18:00",
+          "19:00",
+          "20:00",
+          "21:00",
+          "22:00",
+          "23:00",
+          "24:00",
+        ],
+	      labels: {
+          show: false,
+        }
+      },
+      yaxis: {
+        type: 'integer',
+	      labels: {
+          show: false,
+        }
+      },
+    };
+		let optionsMoney = {
+      series: [{
+	        name: '{% translate "Yesterday" %}',
+	        data: yesterdays_money,
+	      }, {
+	        name: '{% translate "Today" %}',
+          data: todays_money,
+      }],
+      chart: {
+        height: 200,
+	      width: '100%',
+	      toolbar: {
+	        show: false,
+	      },
+        type: 'area',
+				zoom: {
+					enabled: false,
+				},
+      },
+			colors: [
+        '#9c9c9c', '#F472B6',
+			],
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'smooth'
+      },
+			grid: {
+			  show: true,
+			  borderColor: '#f3f4f6',
+			  strokeDashArray: 0,
+			  position: 'back',
+			  xaxis: {
+		      lines: {
+	          show: true
+		      }
+			  },
+			  yaxis: {
+		      lines: {
+	          show: false
+		      }
+			  },
+			  padding: {
+			      top: 0,
+			      right: 0,
+			      bottom: 0,
+			      left: 0
+			  },
+			},
+			legend: {
+				show: false,
+			},
+      xaxis: {
+        type: 'category',
+        categories: [
+          "00:00",
+          "01:00",
+          "02:00",
+          "03:00",
+          "04:00",
+          "05:00",
+          "06:00",
+          "07:00",
+          "08:00",
+          "09:00",
+          "10:00",
+          "11:00",
+          "12:00",
+          "13:00",
+          "14:00",
+          "15:00",
+          "16:00",
+          "17:00",
+          "18:00",
+          "19:00",
+          "20:00",
+          "21:00",
+          "22:00",
+          "23:00",
+          "24:00",
+        ],
+	      labels: {
+          show: false,
+        }
+      },
+      yaxis: {
+        type: 'numeric',
+	      labels: {
+          show: false,
+        }
+      },
+    };
+    let chartMessages = new ApexCharts(document.getElementById('todayMessagesReceived'), options);
+    chartMessages.render();
+    let chartNetVolume = new ApexCharts(document.getElementById('todayNetVolume'), optionsMoney);
+    chartNetVolume.render();
+	</script>
+{% endblock %}

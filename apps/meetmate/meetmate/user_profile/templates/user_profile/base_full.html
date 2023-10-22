@@ -1,0 +1,555 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<meta property='og:title' content='{% block og_title %}{% endblock %}'>
+		<meta property='twitter:title' content='{% block twitter_title %}{% endblock %}'>
+		<meta itemprop='name' content='{% block name %}{% endblock %}'>
+    {% include 'head.html' %}
+    <title>
+      {% block title %}
+        {% if self.seo_title %}{{ self.seo_title }}{% else %}{{ self.title }}{% endif %}
+      {% endblock %}
+      {% block title_suffix %}
+        {% with self.get_site.site_name as site_name %}
+          {% if site_name %}- {{ site_name }}{% endif %}
+        {% endwith %}
+      {% endblock %}
+    </title>
+		{% block extra_css %}
+		{% endblock %}
+  </head>
+	<body class='bg-gray-50' onclick='hideAll();'>
+		{% load i18n static %}
+		{% url 'chat:list' as chat_url %}
+		{% url 'profile:dashboard' as dashboard %}
+		{% url 'paid_messages:list' as messages_url %}
+		{% url 'profile:edit_profile' as edit_profile %}
+		{% url 'profile:custom_socialaccount_connections' as social_accounts_url %}
+		{% url 'profile:notifications' as notifications_url %}
+		{% url 'profile:settings' as settings %}
+		<header class='max-w-screen-xl fixed left-0 right-0 w-full lg:w-auto
+				flex flex-row justify-between items-center
+				shadow z-40 px-3 md:px-6 py-4 mx-auto
+				{% if chat_url not in request.get_full_path %}lg:mt-2 lg:rounded-full lg:shadow-all lg:left-4 lg:right-4{% endif %}
+				bg-white'
+				style='height: 74px;'>
+			<div class='flex h-full flex-shrink' style='width: 202px;'>
+				<div class='invisible sm:visible'>
+					<a href='{% url "home" %}' class='inline-block'>
+						<img src='{% static "img/logo.svg" %}' alt='{% trans "logo" %}'
+								class='w-12 h-12'/>
+					</a>
+				</div>
+				<div id='searchDivSmall'
+						class='fixed left-0 top-0 right-44 
+								sm:hidden max-w-sm z-50 transition-all
+								px-3 md:px-6 py-4'
+						onclick='event.stopPropagation(); showSearch();'>
+					<div class='relative'>
+						<form hx-get='{% url "profile:search" %}'
+								hx-target='#searchResultSmallList'
+								hx-swap='innerHTML'
+								hx-trigger='pageLoaded'
+								id='searchSmallForm'>
+							<input id='searchDivSmallInput'
+								class='w-full
+										block flex-grow shadow border
+										rounded-full
+										px-6 py-2
+										border-gray-200
+										transform-all'
+								name='search'
+								placeholder='{% trans "Search" %}'
+								autocomplete='off'/>
+						</form>
+						<span id='smallSearchIconShow'>
+							<i class='fal fa-search
+									absolute absolute-y-center right-4 select-none p-2 text-sm 
+									text-gray-400'
+									onclick='searchDivSmallInput.focus(); showSearch(); event.stopPropagation();'></i>
+						</span>
+						<span id='smallSearchIconHide' class='hidden 
+								absolute absolute-y-center right-2 w-8 h-8 p-2 
+								flex justify-center items-center
+								text-lg cursor-pointer rounded-full transition-colors
+								bg-white hover:bg-gray-200'>
+							<i class='fal fa-times-circle 
+									text-gray-400'
+									onclick='hideSearch(); event.stopPropagation();'></i>
+						</span>
+					</div>
+				</div>
+				<div id='searchResultsSmall'
+						class='flex flex-col sm:hidden h-128 z-40 transition-all
+								absolute left-0 bottom-auto bottom-full right-0
+								border-b
+								shadow-lg
+								bg-white border-gray-300'
+						onclick='event.stopPropagation();'>
+					<div class='pt-12'></div>
+					<div class='flex flex-row-reverse mx-3 md:mx-6'>
+						<div class='w-10 h-10 flex justify-center items-center rounded-full cursor-pointer transition-colors
+							bg-white hover:bg-gray-200'
+								onclick='hideSearch();'>
+							<i class='fal fa-times rounded-full text-xl p-2
+									text-gray-500'></i>
+						</div>
+					</div>
+					<div id='searchResultSmallList'
+							class='flex flex-col flex-grow overflow-y-auto'>
+						<div class='h-full w-full flex justify-center items-center pb-12 font-semibold
+								text-gray-400'>
+							{% trans 'Search for a user.' %}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id='searchDivBig'
+					class='relative max-w-md flex-grow hidden sm:block'
+					onclick='event.stopPropagation(); showSearch();'>
+				<form hx-get='{% url "profile:search" %}'
+						hx-target='#searchResultsBigList'
+						hx-swap='innerHTML'
+						hx-trigger='pageLoaded'
+						id='searchBigForm'
+						class='flex items-center'>
+					<input id='searchDivBigInput'
+							class='w-full
+									block flex-grow shadow border
+									rounded-full
+									px-6 py-2
+									border-gray-200' 
+							name='search'
+							placeholder='{% trans "Search" %}'
+							autocomplete='off'/>
+					<span id='bigSearchIconShow'>
+						<i class='fal fa-search
+								absolute absolute-y-center right-4 text-normal z-50
+								text-gray-400'
+								onclick='searchDivBigInput.focus(); showSearch(); event.stopPropagation();'></i>
+					</span>
+					<span id='bigSearchIconHide' class='hidden 
+							absolute absolute-y-center right-2 w-8 h-8 p-2 
+							flex justify-center items-center
+							text-lg cursor-pointer rounded-full transition-colors
+							bg-white hover:bg-gray-200'>
+						<i class='fal fa-times-circle 
+								text-gray-400'
+								onclick='hideSearch(); event.stopPropagation();'></i>
+					</span>
+				</form>
+				<div id='searchResultsBig'
+						class='absolute top-full absolute-x-center transition-all z-50 pt-1
+								flex flex-col items-center hidden'>
+					<div class='w-6 h-6 rounded bg-white shadow
+								border
+								border-gray-200'
+							style='transform: rotate(45deg); z-index: 1'></div>
+					<div class='flex flex-col'>
+						<div id='searchResultsBigList' class='w-80 h-96 rounded -mt-4 py-2 shadow border
+									bg-white border-gray-200 overflow-y-auto'
+									style='z-index: 2;'>
+							<div class='h-full w-full flex justify-center items-center pb-12 font-semibold
+									text-gray-400'>
+								{% trans 'Search for a user.' %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% if request.user.is_authenticated %}
+				<div class='w-44 flex justify-end flex-shrink-0'>
+					<a href='{{ chat_url }}' class='button button-sm button-rounded button-primary-darker mr-2'>
+						{% trans 'Chats' %}
+						<span id='chatTotalNotifications'
+								class='hidden inline-block text-sm rounded-full border px-1
+										border-white'
+								style='min-width: 22px'>
+						</span>
+					</a>
+					<div id='header-user'
+							class='hidden md:block relative cursor-pointer'
+							onclick='showHideHeaderUserSub(); event.stopPropagation();'>
+						<img class='w-10 h-10 rounded-full'
+								src='{{ request.user.display_profile_picture_url }}'
+								alt='{% trans "profile picture" %}' />
+						<div class='relative hidden md:block'>
+							<!--popup-->
+							<div id='header-user-sub'
+									class='absolute right-0 top-4 border shadow rounded-lg hidden opacity-0 transform scale-75 transition-all
+											bg-white border-gray-200'
+									style='min-width: 16rem;'>
+								<a href='{% url "profile_detail:detail" username=request.user.username %}' 
+										class='block cursor-pointer whitespace-nowrap p-4 border-b rounded-t-lg
+											transition-colors focus:outline-none
+											border-gray-300 bg-white hover:bg-gray-200 focus:bg-gray-200'>
+										<div class='font-bold'>
+											{{ request.user.username }}
+										</div>
+										<div >
+											{% trans 'View my page' %}
+										</div>
+								</a>
+								<div class='w-full pt-2'></div>
+								<a href='{% url "profile:dashboard" %}' 
+										class='block cursor-pointer px-4 py-2 transition-colors focus:outline-none
+											bg-white hover:bg-gray-200 focus:bg-gray-200
+											{% if request.get_full_path == dashboard %}bg-gray-200{% endif %}'>
+									<i class='fal fa-chart-line mr-2'></i>
+									{% trans 'Dashboard' %}
+								</a>
+								<a href='{% url "paid_messages:list" %}' 
+										class='block cursor-pointer px-4 py-2 transition-colors focus:outline-none
+											bg-white hover:bg-gray-200 focus:bg-gray-200
+											{% if request.get_full_path == messages_url %}bg-gray-200{% endif %}'>
+									<i class='fal fa-comments-dollar mr-2'></i>
+									{% trans 'Messages' %}
+								</a>
+								<a href='{% url "profile:edit_profile" %}'
+										class='block cursor-pointer px-4 py-2 transition-colors focus:outline-none
+											bg-white hover:bg-gray-200 focus:bg-gray-200
+											{% if request.get_full_path == edit_profile %}bg-gray-200{% endif %}'>
+									<i class='fal fa-user-edit mr-2'></i>
+									{% trans 'Edit profile' %}
+								</a>
+								<a href='{{ social_accounts_url }}'
+										class='block cursor-pointer px-4 py-2 transition-colors focus:outline-none
+											bg-white hover:bg-gray-200 focus:bg-gray-200
+											{% if request.get_full_path == social_accounts_url %}bg-gray-200{% endif %}'>
+									<i class='fal fa-user-edit mr-2'></i>
+									{% trans 'Edit profile' %}
+								</a>
+								<a href='{% url "profile:notifications" %}'
+										class='block cursor-pointer px-4 py-2 transition-colors focus:outline-none
+											bg-white hover:bg-gray-200 focus:bg-gray-200
+											{% if request.get_full_path == notifications_url %}bg-gray-200{% endif %}'>
+									<i class='fal fa-bell mr-2'></i>
+									{% trans 'Notifications' %}
+								</a>
+								<a href='{% url "profile:settings" %}'
+										class='block cursor-pointer px-4 py-2 transition-colors focus:outline-none
+											bg-white hover:bg-gray-200 focus:bg-gray-200
+											{% if request.get_full_path == settings %}bg-gray-200{% endif %}'>
+									<i class='fal fa-cogs mr-2'></i>
+									{% trans 'Settings' %}
+								</a>
+								<div class='w-full pt-2 border-b border-gray-200'></div>
+								<a href='{% url "profile:logout" %}' 
+										class='block cursor-pointer p-4 transition-colors rounded-b-lg focus:outline-none
+											bg-white hover:bg-gray-200 focus:bg-gray-200'>
+									<i class='fal fa-sign-out mr-2'></i>
+									{% trans 'Sign out' %}
+								</a>
+							</div>
+						</div>
+					</div>
+					<button class='rounded-full block md:hidden cursor-pointer w-10 h-10 unselectable'
+							onclick='showHideSubNav();'>
+						<img id='showSubEl' class='rounded-full opacity-100 hover:opacity-60 transition-opacity'
+								src='{{ request.user.display_profile_picture_url }}'
+								alt='{% trans "profile_picture" %}'/>
+						<span id='hideSubEl' class='hidden w-10 h-10 flex items-center justify-center rounded-full transition-colors
+								bg-white hover:bg-gray-200'>
+							<i class='fal fa-times text-2xl 
+									text-gray-400'></i>
+						</span>
+					</button>
+					<!--div id='header-flip' class='flip-card rounded-full block md:hidden cursor-pointer w-10 h-10 unselectable'
+							onclick='showHideSubNav();'>
+						<div class='flip-card-inner bg-white'>
+							<div class='flip-card-front bg-white'>
+							</div>
+							<div class='flip-card-back flex justify-center items-center bg-white text-black text-2xl opacity-100
+									hover:opacity-60 transition-opacity'>
+								<i class='fal fa-times'></i>
+							</div>
+						</div>
+					</div-->
+				</div>
+			{% else %}
+				<div style='width: 202px;'>
+				</div>
+			{% endif %}
+		</header>
+		{% if request.user.is_authenticated %}
+		<!--Menu on small screen-->
+		<div id='sub-nav'
+				class='fixed -top-full bottom-full top-0 left-0 right-0 md:hidden transition-all duration-300 z-30
+						bg-white'
+				style='margin-top: 4.5rem;'>
+			<div>
+				<a href='{% url "profile_detail:detail" username=request.user.username %}' 
+					class='cursor-pointer whitespace-nowrap flex px-3 py-4 border-b transition-colors
+							outline-none border-gray-300 bg-white hover:bg-gray-200 focus:bg-gray-200'>
+					<div class='mr-4 flex items-center'>
+						<img class='w-10 h-10 rounded-full'
+								src='{{ request.user.display_profile_picture_url }}'
+								alt='{% trans "profile_picture" %}'/>
+					</div>
+					<div>
+						<div class='font-bold'>
+							{{ request.user.username }}
+						</div>
+						<div >
+							{% trans 'View my page' %}
+						</div>
+					</div>
+				</a>
+				<a href='{{ dashboard }}' 
+						class='block cursor-pointer transition-colors px-3 py-4 
+								focus:outline-none bg-white hover:bg-gray-200 focus:bg-gray-200
+								{% if request.get_full_path == dashboard %}bg-gray-200{% endif %}'>
+					<i class='fal fa-chart-line mr-2'></i>
+					{% trans 'Dashboard' %}
+				</a>
+				<a href='{% url "paid_messages:list" %}' 
+						class='block cursor-pointer transition-colors px-3 py-4 
+								focus:outline-none bg-white hover:bg-gray-200 focus:bg-gray-200
+								{% if request.get_full_path == messages_url %}bg-gray-200{% endif %}'>
+						<i class='fal fa-comments-dollar mr-2'></i>
+					{% trans 'Messages' %}
+				</a>
+				<a href='{% url "profile:edit_profile" %}'
+						class='block cursor-pointer transition-colors px-3 py-4 
+								focus:outline-none bg-white hover:bg-gray-200 focus:bg-gray-200
+							{% if request.get_full_path == edit_profile %}bg-gray-200{% endif %}'>
+					<i class='fal fa-user-edit mr-2'></i>
+					{% trans 'Edit profile' %}
+				</a>
+				<a href='{% url "profile:settings" %}' 
+						class='block cursor-pointer transition-colors px-3 py-4
+						focus:outline-none bg-white hover:bg-gray-200 focus:bg-gray-200
+							{% if request.get_full_path == settings %}bg-gray-200{% endif %}'>
+					<i class='fal fa-cogs mr-2'></i>
+					{% trans 'Settings' %}
+				</a>
+				<a href='{% url "profile:logout" %}'
+						class='block cursor-pointer  px-3 py-4 border-t transition-colors
+								focus:outline-none bg-white border-gray-300 hover:bg-gray-300 focus:bg-gray-200'>
+					<i class='fal fa-sign-out mr-2'></i>
+					{% trans 'Sign out' %}
+				</a>
+			</div>
+		</div>
+		{% endif %}
+		<script>
+			window.username = '{{ request.user.username }}'; 
+			let chatTotalCounter = 0;
+			const headerUserSub = document.getElementById('header-user-sub');
+			const subNav = document.getElementById('sub-nav');
+			//const headerFlip = document.getElementById('header-flip');
+			const showSubEl = document.getElementById('showSubEl');
+			const hideSubEl = document.getElementById('hideSubEl');
+			const chatTotalNotifications = document.getElementById('chatTotalNotifications');
+			const searchDivSmall = document.getElementById('searchDivSmall');
+			const searchDivSmallInput = document.getElementById('searchDivSmallInput');
+			const searchResultsSmall = document.getElementById('searchResultsSmall');
+			const searchResultsSmallList = document.getElementById('searchResultsSmallList');
+			const searchDivBig = document.getElementById('searchDivBig');
+			const searchDivBigInput = document.getElementById('searchDivBigInput');
+			const searchResultsBig = document.getElementById('searchResultsBig');
+			const searchResultsBigList = document.getElementById('searchResultsBigList');
+			const bigSearchIconShow = document.getElementById('bigSearchIconShow');
+			const bigSearchIconHide = document.getElementById('bigSearchIconHide');
+			const smallSearchIconShow = document.getElementById('smallSearchIconShow');
+			const smallSearchIconHide = document.getElementById('smallSearchIconHide');
+			if (username != '') {
+				window.temp = new WebSocket(
+					(window.location.protocol === 'https:' ? 'wss://' : 'ws://')
+					+ window.location.host
+					+ '/ws/notification/'
+				);
+				temp.onmessage = function(e) {
+					const data = JSON.parse(e.data);
+					if (data.message_type === 'total_notification') {
+						updateChatTotalNotifications(parseInt(data.count), true);
+					} else if (data.message_type === 'opened') {
+						updateChatTotalNotifications(-(parseInt(data.opened)));
+					} else if (data.message_type === 'new_chat_notification') {
+						updateChatTotalNotifications(1);
+					}
+				}
+			}
+			function showSearch() {
+				searchDivSmall.classList.add('right-0');
+				searchDivSmall.classList.remove('max-w-sm');
+				searchDivSmall.classList.remove('right-44');
+				searchResultsSmall.classList.remove('bottom-full');
+				searchResultsBig.classList.remove('hidden');
+				smallSearchIconShow.classList.add('hidden');
+				bigSearchIconShow.classList.add('hidden');
+				smallSearchIconHide.classList.remove('hidden');
+				bigSearchIconHide.classList.remove('hidden');
+			}  
+			function hideSearch() {
+				searchDivSmall.classList.add('right-44');
+				searchDivSmall.classList.add('max-w-sm');
+				searchDivSmall.classList.remove('right-0');
+				searchResultsSmall.classList.add('bottom-full');
+				searchResultsBig.classList.add('hidden');
+				smallSearchIconShow.classList.remove('hidden');
+				bigSearchIconShow.classList.remove('hidden');
+				smallSearchIconHide.classList.add('hidden');
+				bigSearchIconHide.classList.add('hidden');
+			}
+			function hideAll() {
+				try {
+					hideHeaderUserSub();
+				} catch (e) {}
+				hideSearch();
+			}
+			function showHideSubNav() {
+				subNav.classList.toggle('-top-full');
+        subNav.classList.toggle('bottom-full');
+        subNav.classList.toggle('bottom-0');
+				showSubEl.classList.toggle('hidden');
+				hideSubEl.classList.toggle('hidden');
+				//headerFlip.classList.toggle('active');
+			}
+			function showHideHeaderUserSub() {
+				if (headerUserSub.classList.contains('hidden')) {
+					showHeaderUserSub();
+				} else {
+					hideHeaderUserSub();
+				}
+			}
+			function showHeaderUserSub() {
+				headerUserSub.classList.remove('hidden');
+				setTimeout(() => {
+					headerUserSub.classList.add('opacity-100');
+					headerUserSub.classList.remove('opacity-0');
+					headerUserSub.classList.add('scale-100');
+				}, 1);
+			}
+			function hideHeaderUserSub() {
+				headerUserSub.classList.add('opacity-0');
+				headerUserSub.classList.remove('opacity-100');
+				headerUserSub.classList.remove('scale-100');
+				setTimeout(() => {
+					headerUserSub.classList.add('hidden');
+				}, 150);
+			}
+			function updateChatTotalNotifications(delta, noDelta) {
+				if (noDelta) {
+					chatTotalCounter = delta;
+				} else {
+					chatTotalCounter += delta;
+				}
+				if (chatTotalCounter > 0) {
+					chatTotalNotifications.innerText = chatTotalCounter;
+					chatTotalNotifications.classList.remove('hidden');
+				} else {
+					chatTotalNotifications.classList.add('hidden');
+				}
+			}
+			searchDivBigInput.addEventListener('input', function (evt) {
+				htmx.trigger("#searchBigForm", 'pageLoaded');
+			});
+			searchDivSmallInput.addEventListener('input', function (evt) {
+				htmx.trigger("#searchSmallForm", 'pageLoaded');
+			});
+		</script>    
+		{% include 'snackbar.html' %}
+		{% block overlay %}
+		{% endblock %}
+    <section id='headerPadding' class='pt-18'></section>
+    {% block content %}
+    {% endblock %}
+    {% include 'script.html' %}
+    {% include 'core/cookie_consent.html' %}
+    <script>
+      const darkOverlay = document.getElementById('dark-overlay');
+      const darkOverlayContent = document.getElementById('dark-overlay-content');
+      const signUpOverlayContent = document.getElementById('sign-up-overlay-content');
+      const signInOverlayContent = document.getElementById('sign-in-overlay-content');
+      const passwordResetOverlayContent = document.getElementById('password-reset-overlay-content');
+      function showDarkOverlay() {
+      	darkOverlay.classList.add('z-40');
+        darkOverlay.classList.add('opacity-100');
+        hideBodyOverflow();
+      }
+      function hideDarkOverlay() {
+      	darkOverlay.classList.remove('z-40');
+        darkOverlay.classList.remove('opacity-100');
+        showBodyOverflow();
+      }
+      function showOverlayContent(element) {
+        element.classList.remove('hidden');
+        element.classList.remove('translate-y-40');
+      }
+      function hideOverlayContent(element) {
+        element.classList.add('translate-y-40');
+        element.classList.add('hidden');
+      }
+      function showOverlay(element) {
+        showDarkOverlay();
+        element.classList.remove('hidden');
+        setTimeout(() => {
+          element.classList.remove('translate-y-40');
+        }, 1);
+      }
+      function hideOverlay(element) {
+        hideDarkOverlay();
+        element.classList.add('translate-y-40');
+        setTimeout(() => {
+          element.classList.add('hidden');
+        }, 150);
+      }
+      function showSignUpContent() {
+      	showOverlayContent(signUpOverlayContent);
+      }
+      function hideSignUpContent() {
+      	hideOverlayContent(signUpOverlayContent);
+      }
+      function showSignUpOverlay() {
+      	document.getElementById('signUpFormFromPage').value = window.location.pathname;
+      	showOverlay(signUpOverlayContent);
+      }
+      function hideSignUpOverlay() {
+      	hideOverlay(signUpOverlayContent);
+      }
+      function showSignInContent() {
+      	showOverlayContent(signInOverlayContent);
+      }
+      function hideSignInContent() {
+      	hideOverlayContent(signInOverlayContent);
+      }
+      function showSignInOverlay() {
+      	document.getElementById('signInFormFromPage').value = window.location.pathname;
+      	showOverlay(signInOverlayContent);
+      }
+      function hideSignInOverlay() {
+      	hideOverlay(signInOverlayContent);
+      }
+      function showPasswordResetContent() {
+      	showOverlayContent(passwordResetOverlayContent);
+      }
+      function hidePasswordResetContent() {
+      	showOverlayContent(passwordResetOverlayContent);
+      }
+      function showPasswordResetOverlay() {
+      	showOverlay(passwordResetOverlayContent);
+      }
+      function hidePasswordResetOverlay() {
+      	hideOverlay(passwordResetOverlayContent);
+      }
+			{% if messages %}
+			  let fancyBaseCounter = 0;
+			  let message = '';
+			  let alert = '';
+			  const fancyBaseDelay = 500;
+			  {% for message in messages %}
+			    setTimeout(function(){
+			      message = `{{ message.message }}`.replace(/&quot;/g, "\"").replaceAll("\n", "\\n");
+			      alert = JSON.parse(message);
+			      createFancyAlert(alert['data']['type'], alert['data']['title'], alert['data']['innerHTML']);
+			    }, fancyBaseCounter * fancyBaseDelay);
+			    fancyBaseCounter = fancyBaseCounter + 1;
+			  {% endfor %}
+			{% endif %}
+    </script>
+    {% block extra_js %}
+    {% endblock %}
+	</body>
+</html>

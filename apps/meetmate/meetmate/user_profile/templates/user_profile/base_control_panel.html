@@ -1,0 +1,139 @@
+{% load i18n static %}
+{% url 'profile:dashboard' as dashboard %}
+{% url 'paid_messages:list' as messages_url %}
+{% url 'profile:edit_profile' as edit_profile %}
+{% url 'profile:notifications' as notifications_url %}
+{% url 'profile:custom_socialaccount_connections' as social_accounts_url %}
+{% url 'profile:settings' as settings %}
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<meta property='og:title' content='{% block og_title %}{% endblock %}'>
+		<meta property='twitter:title' content='{% block twitter_title %}{% endblock %}'>
+		<meta itemprop='name' content='{% block name %}{% endblock %}'>
+    {% include 'head.html' %}
+    <title>
+      {% block title %}
+        {% if self.seo_title %}{{ self.seo_title }}{% else %}{{ self.title }}{% endif %}
+      {% endblock %}
+      {% block title_suffix %}
+        {% with self.get_site.site_name as site_name %}
+          {% if site_name %}- {{ site_name }}{% endif %}
+        {% endwith %}
+      {% endblock %}
+    </title>
+		{% block extra_css %}
+		{% endblock %}
+  </head>
+	<body class='bg-gray-50' onclick='hideAll();'>
+		{% include 'header.html' with request=request %}
+    {% include 'snackbar.html' %}
+    {% block overlay %}
+    {% endblock %}
+    <section class='max-w-screen-xl relative flex edge-to-edge-container mx-auto pt-24'>
+      <!--Side bar menu-->
+      <div class='fixed hidden md:block md:w-72'>
+        <div class='card'>
+          <a href='{% url "profile_detail:detail" username=request.user.username %}'
+							class='cursor-pointer whitespace-nowrap flex flex-col justify-center items-center px-3 py-4 border-b
+								transition-colors rounded focus:outline-none
+								border-gray-300 bg-white hover:bg-gray-200 focus:bg-gray-200'>
+						<div class='flex items-center mb-4'>
+							<img class='w-16 h-16 rounded-full'
+									src='{{ request.user.display_profile_picture_url }}'
+									alt='{% trans "profile_picture" %}'/>
+						</div>
+						<div>
+							<div class='font-bold'>
+								{{ request.user.username }}
+							</div>
+						</div>
+          </a>
+          <a href='{% url "profile:dashboard" %}'
+							class='block cursor-pointer px-3 py-4 rounded-full transition-colors 
+									focus:outline-none bg-white hover:bg-gray-200 focus:bg-gray-200
+									{% if request.get_full_path == dashboard %}bg-gray-200{% endif %}'>
+						<i class='fal fa-chart-line mr-2'></i>
+						{% trans 'Dashboard' %}
+          </a>
+          <a href='{% url "paid_messages:list" %}'
+							class='block cursor-pointer px-3 py-4 rounded-full transition-colors focus:outline-none
+									bg-white hover:bg-gray-200 focus:bg-gray-200
+									{% if request.get_full_path == messages_url %}bg-gray-200{% endif %}'>
+						<i class='fal fa-comments-dollar mr-2'></i>
+						{% trans 'Messages' %}
+          </a>
+          <a href='{% url "profile:edit_profile" %}'
+							class='block cursor-pointer px-3 py-4 rounded-full transition-colors focus:outline-none
+									bg-white hover:bg-gray-200 focus:bg-gray-200
+							{% if request.get_full_path == edit_profile %}bg-gray-200{% endif %}'>
+						<i class='fal fa-user-edit mr-2'></i>
+						{% trans 'Edit profile' %}
+          </a>
+          <a href='{% url "profile:custom_socialaccount_connections" %}'
+							class='block cursor-pointer px-3 py-4 rounded-full transition-colors focus:outline-none
+									bg-white hover:bg-gray-200 focus:bg-gray-200
+							{% if request.get_full_path == social_accounts_url %}bg-gray-200{% endif %}'>
+						<i class='fal fa-users mr-2'></i>
+						{% trans 'Social media' %}
+          </a>
+          <a href='{% url "profile:notifications" %}'
+							class='block cursor-pointer px-3 py-4 rounded-full transition-colors focus:outline-none
+									bg-white hover:bg-gray-200 focus:bg-gray-200
+							{% if request.get_full_path == notifications_url %}bg-gray-200{% endif %}'>
+						<i class='fal fa-bell mr-2'></i>
+						{% trans 'Notifications' %}
+          </a>
+          <a href='{% url "profile:settings" %}'
+							class='block cursor-pointer px-3 py-4 rounded-full transition-colors  focus:outline-none
+								bg-white hover:bg-gray-200 focus:bg-gray-200
+								{% if request.get_full_path == settings %}bg-gray-200{% endif %}'>
+					<i class='fal fa-cogs mr-2'></i>
+					{% trans 'Settings' %}
+        </a>
+        </div>
+      </div>
+      <div class='w-full md:ml-72 md:pl-6 xl:pl-12'>
+        {% if not request.user.stripe_access_token and not request.user.paypal_merchant_id %}
+	        <div class='w-full flex flex-col lg:flex-row justify-between items-center
+	            border border-yellow-200 bg-opacity-60 bg-yellow-100 rounded full-card'>
+		        <div class='lg:mr-4 mb-4 lg:mb-0'>
+	            {% trans 'Your page is currently private. Please connect a payout method to publish your page.' %}
+		        </div>
+		        <div>
+		          <a href='{% url "profile:settings" %}'
+		              class='flex items-center button button-md button-light-dark rounded-full nowrap'>
+			          <i class='fal fa-plug mr-2'></i>{% trans 'Connect' %}
+		          </a>
+		        </div>
+	        </div>
+	      {% endif %}
+        {% block content %}
+        {% endblock %}
+      </div>
+    </section>
+    {% include 'script.html' %}
+    <script>
+      window.username = '{{ request.user.username }}';
+	    {% if messages %}
+	      let fancyBaseCounter = 0;
+	      let message = '';
+	      let alert = '';
+	      const fancyBaseDelay = 500;
+	      {% for message in messages %}
+		      console.log('{{ message }}');
+	        setTimeout(function(){
+						try {
+							message = `{{ message.message }}`.replace(/&quot;/g, "\"").replaceAll("\n", "\\n");
+							alert = JSON.parse(message);
+							createFancyAlert(alert['data']['type'], alert['data']['title'], alert['data']['innerHTML']);
+						} catch (exception) {}
+	        }, fancyBaseCounter * fancyBaseDelay);
+	        fancyBaseCounter = fancyBaseCounter + 1;
+	      {% endfor %}
+			{% endif %}
+    </script>
+    {% block extra_js %}
+    {% endblock %}
+	</body>
+</html>

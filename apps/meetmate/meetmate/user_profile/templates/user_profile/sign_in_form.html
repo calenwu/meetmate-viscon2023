@@ -1,0 +1,111 @@
+{% load i18n static %}
+<form hx-post='{% url "profile:sign_in_form" %}' hx-swap='outerHTML'
+		class='flex flex-col w-full h-full min-h-0'>
+  <div class='w-full flex justify-between border-b-2 border-black px-3 py-4 text-center'>
+    <div class="w-8 h-8">
+    </div>
+    <div class='font-bold pt-1'>
+      {% trans 'Sign in' %}
+    </div>
+    <div>
+      <button class="button button-invisible-white w-8 h-8 flex justify-center rounded-full "
+          type='button'
+          onclick="hideSignInOverlay();">
+        <i class="fal fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <div class='min-h-0 w-full px-3 md:px-6 py-6 text-left overflow-y-auto'>
+    <h3 class='pt-4 font-bold'>
+      Welcome to the community!
+    </h3>
+    <div class='flex flex-row-reverse'>
+      <button class='inline-block link-primary mb-4 ml-1'
+          type='button'
+          onclick='hideSignInContent(); showSignUpContent()'>
+        {% trans 'Sign up here' %}
+      </button>
+      {% trans 'No account yet?' %}
+    </div>
+    {% if form.non_field_errors %}
+      <div class='w-full bg-white border-l-4 border-red-400 p-3 mb-4 rounded shadow'>
+        <div class='flex'>
+          <div class='flex items-center mr-3'>
+            <i class='fancy-alert-icon text-red-400 fas fa-exclamation-circle'></i>
+          </div>
+          <div>
+            {% for error in form.non_field_errors %}
+              <div>
+                {{ error }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    <div>
+      <div class='form-label-group-lg {% if form.login.errors %}error{% endif %}'>
+        <input name='{{ form.login.html_name }}' id='{{ form.login.id_for_label }}'
+          placeholder='{% trans "lukeskywalker@gmail.com" %}' class='input-white-bg'
+          {% if form.login.value %}value='{{ form.login.value }}'{% endif %}
+          onkeydown='removeError(this);'
+          required/>
+        <label for='{{ form.login.id_for_label }}'>
+          {% trans 'Email' %}
+        </label>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.login.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <div class='form-label-group-lg {% if form.password.errors %}error{% endif %}'>
+        <input name='{{ form.password.html_name }}' id='{{ form.password.id_for_label }}' type='password'
+          placeholder='{% trans "Password" %}' class='input-white-bg'
+          {% if form.password.value %}value='{{ form.password.value }}'{% endif %}
+          onkeydown='removeError(this);'
+          required/>
+        <label for='{{ form.password.id_for_label }}'>
+          {{ form.password.label }}
+        </label>
+        <button class='absolute top-1/2 right-0 w-8 h-8 mr-2 transform -translate-y-1/2 text-xl text-gray-400
+            hover:text-black cursor-pointer unselectable transition-colors'
+            aria-label='{% trans "Show or hide password" %}'
+            type='button'
+            onclick='showHidePassword(this, "{{ form.password.id_for_label }}")'>
+          <i class='fal fa-eye'></i>
+        </button>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.password.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <button class='inline-block link-primary mb-4' type='button'
+            onclick='hideSignInContent(); showPasswordResetContent();'>
+        {% trans 'Forgot your password?' %}
+      </button>
+      <input type='hidden' name='from_page' value='{{ request.path }}' id='signInFormFromPage'>
+      {% csrf_token %}
+      <button class='button button-md button-primary-darker w-full transform scale-100 active:scale-90' type='submit'>
+        <div>{% trans 'Sign in' %}</div>
+        <div class='stage hidden'>
+          <span class='text-transparent'>I</span>
+	        <span class='dot-flashing'></span>
+	        <span class='text-transparent'>I</span>
+        </div>
+      </button>
+      <div class='relative w-full py-8'>
+        <div class='h-0.5 w-full border-t border-gray-200'></div>
+        <div class='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-4 text-sm '>
+          {% trans 'or' %}
+        </div>
+      </div>
+	    {% include 'user_profile/social_logins.html' %}
+    </div>
+  </div>
+</form>

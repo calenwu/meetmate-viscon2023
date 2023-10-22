@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<div class='text-black border-black mb-8'>
+    <h2>
+        <b>Tinder Matching</b>
+    </h2>
+    <p class='text-end'>
+        These events are currently open for all users
+    </p>
+    <div class='grid grid-cols-1 md:grid-cols-2 gap-2'>
+        {% for event in object_list %}
+            <a href='{% url "core:detail" id=event.id %}' class='p-2 border-2 border-black rounded-lg bg-indigo-200'>
+                <h4 class='mb-4'>
+                    <b> &ensp;{{ event.name }}</b>
+						<br>
+                        <br>
+                        &ensp;<i class="fas fa-hourglass-start"></i> &emsp;{{event.duration }} hours
+                        <br>
+                        &ensp;<i class="fal fa-calendar-alt"></i> &emsp;{{event.min_time}}:00 - {{event.max_time}}:00
+						<br>
+						&ensp;<i class="fas fa-thumbtack"></i> &emsp; {{event.location}}
+                </h4>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

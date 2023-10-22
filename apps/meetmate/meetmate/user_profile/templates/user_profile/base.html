@@ -1,0 +1,51 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<meta property='og:title' content='{% block og_title %}{% endblock %}'>
+		<meta property='twitter:title' content='{% block twitter_title %}{% endblock %}'>
+		<meta itemprop='name' content='{% block name %}{% endblock %}'>
+    {% include 'head.html' %}
+    <title>
+      {% block title %}
+        {% if self.seo_title %}{{ self.seo_title }}{% else %}{{ self.title }}{% endif %}
+      {% endblock %}
+      {% block title_suffix %}
+        {% with self.get_site.site_name as site_name %}
+          {% if site_name %}- {{ site_name }}{% endif %}
+        {% endwith %}
+      {% endblock %}
+    </title>
+		{% block extra_css %}
+		{% endblock %}
+  </head>
+	<body class='bg-gray-50' onclick='hideAll();'>
+		{% include 'header.html' with request=request %}
+    {% include 'snackbar.html' %}
+    {% block overlay %}
+    {% endblock %}
+    <section id='mainSection' class='relative' style='padding-top: 4.65rem;'>
+	    {% block content %}
+	    {% endblock %}
+    </section>
+    {% include 'script.html' %}
+    <script>
+			{% if messages %}
+			  let fancyBaseCounter = 0;
+			  let message = '';
+			  let alert = '';
+			  const fancyBaseDelay = 500;
+			  {% for message in messages %}
+			    setTimeout(function(){
+			      message = `{{ message.message }}`.replace(/&quot;/g, "\"").replaceAll("\n", "\\n");
+			      alert = JSON.parse(message);
+			      createFancyAlert(alert['data']['type'], alert['data']['title'], alert['data']['innerHTML']);
+			    }, fancyBaseCounter * fancyBaseDelay);
+			    fancyBaseCounter = fancyBaseCounter + 1;
+			  {% endfor %}
+			{% endif %}
+    </script>
+    {% block extra_js %}
+    {% endblock %}
+	</body>
+</html>

@@ -1,0 +1,23 @@
+{% load core_template_tags %}
+<p>
+	You got invited to the event {{ event.name }} on {% format_date_string date %} from {{ start }} to {{ end }}.
+	Find the .ics file attached and add it to your calendar.
+</p>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Event",
+  "url": "http://www.example.org/events/1",
+  "name": "{{ event.name }}",
+  "description": "A weekly Tai-Chi class",
+  "duration": "PT60M",
+  "eventSchedule": {
+     "@type": "Schedule",
+     "startDate": "{{ date }}",
+     "endDate": "{{ date }}",
+     "startTime": "{{ start }}:00",
+     "endTime": "{{ end }}:00",
+     "scheduleTimezone": "Europe/London"
+  }
+}
+</script>

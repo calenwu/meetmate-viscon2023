@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% block title %}{% trans 'Edit profile | Reachmehere' %}{% endblock %}
+{% block og_title %}{% trans 'Edit profile | Reachmehere' %}{% endblock %}
+{% block twitter_title %}{% trans 'Edit profile | Reachmehere' %}{% endblock %}
+{% block name %}{% trans 'Edit profile | Reachmehere' %}{% endblock %}
+
+{% block overlay %}
+  <div id='overlayProfilePicture' class='fixed bg-black bg-opacity-80 z-50 hidden top-0 right-0 bottom-0 left-0'>
+    <div id='overlayProfilePictureContent'
+        class='w-full h-full flex flex-col-reverse md:flex-col md:justify-center md:items-center md:p-6'>
+      <div class='w-full md:max-w-2xl min-h-0
+          flex flex-col justify-center items-center
+          rounded-b-none rounded-2xl md:rounded-b-2xl
+          bg-white
+          mt-6 md:mt-0'>
+        <div class='w-full h-full flex flex-col min-h-0 bg-white md:rounded'>
+          <div class='w-full flex justify-between border-b border-gray-200 px-3 py-4 text-center'>
+            <div class='font-bold pt-1'>
+              {% trans 'Crop your new profile picture' %}
+            </div>
+            <div>
+              <button class='button button-invisible-white w-8 h-8 flex justify-center rounded-full'
+                  type='button'
+                  onclick='hideProfilePictureOverlay();'>
+                <i class='fal fa-times'></i>
+              </button>
+            </div>
+          </div>
+          <div class='min-h-0 w-full px-3 md:px-6 py-6 text-left overflow-y-auto'>
+            <div class='mb-8'>
+              <img id='cropperImage' class='block max-w-full rounded'
+                  alt='{% trans "New profile picture" %}' src=''>
+            </div>
+            <button class='button button-md button-primary-darker w-full transform scale-100 active:scale-90'
+                type='button' onclick='setProfilePicture(); hideProfilePictureOverlay();'>
+              {% trans 'Set new profile picture' %}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class='full-card mb-8'>
+    {% if form.non_field_errors %}
+      <div class='w-full bg-white border-l-4 border-red-400 p-3 mb-4 rounded shadow'>
+        <div class='flex'>
+          <div class='flex items-center mr-3'>
+            <i class='fancy-alert-icon text-red-400 fas fa-exclamation-circle'></i>
+          </div>
+          <div>
+            {% for error in form.non_field_errors %}
+              <div>
+                {{ error }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    <form method='POST' enctype='multipart/form-data'>
+      <h3 class='font-bold mb-6'>{% trans 'Change profile' %}</h3>
+      <label for='{{ form.profile_picture.id_for_label }}' class='settings-label'>
+        {{ form.profile_picture.label }}
+      </label>
+      <div class='max-w-sm'>
+        <div id='dropZoneProfilePicture' class='relative aspect-w-1 aspect-h-1 cursor-pointer group'>
+          <img id='profilePictureImage' class='block max-w-full object-cover rounded-full border border-gray-400'
+              alt='{% trans "profile picture" %}'
+              src='{{ request.user.display_profile_picture_url }}'>
+          <div class='absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center max-w-full object-cover
+              rounded-full opacity-0 group-hover:opacity-100 bg-black bg-opacity-80 text-white p-20 transition-opacity'>
+            {% trans 'Click or drag an image here to change your profile picture' %}
+          </div>
+          <div class='absolute right-0 bottom-0 flex justify-center items-center w-24 h-10 rounded
+              bg-white border border-gray-500' style='top: unset; left: unset;'>
+            <i class='fal fa-pencil mr-2'></i><span class='pr-2'>{% trans 'Edit' %}</span>
+          </div>
+        </div>
+      </div>
+      <label for='{{ form.profile_picture.id_for_label }}-clear' class='hidden'>{% trans 'Clear' %}</label>
+      <input name='{{ form.profile_picture.html_name }}-clear' id='{{ form.profile_picture.id_for_label }}-clear'
+          type='checkbox' class='hidden'/>
+      <div class='flex flex-row-reverse mt-4'>
+        <button class='btn button-sm button-red' type='button' onclick='removeProfilePicture();'>
+          <i class='fal fa-trash mr-1'></i>{% trans 'Remove profile picture' %}
+        </button>
+      </div>
+      <input name='{{ form.profile_picture.html_name }}' id='{{ form.profile_picture.id_for_label }}'
+          class='settings-input {% if form.profile_picture.errors %}error{% endif %} hidden'
+          {% if form.profile_picture.value %}value='{{ form.profile_picture.value }}'{% endif %}
+          type='file' accept='image/png, image/gif, image/jpeg, image/webp'
+          onkeydown='removeError(this);'/>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.profile_picture.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <label for='{{ form.email.id_for_label }}' class='settings-label'>
+        {{ form.email.label }}
+      </label>
+      <div>
+        <input name='{{ form.email.html_name }}' id='{{ form.email.id_for_label }}'
+            class='settings-input {% if form.email.errors %}error{% endif %}'
+            {% if form.email.value %}value='{{ form.email.value }}'{% endif %}
+            onkeydown='removeError(this);'
+            type='email'
+            placeholder='{% trans "elonmusk@gmail.com" %}'
+             required/>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.email.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <label for='{{ form.first_name.id_for_label }}' class='settings-label'>
+        {{ form.first_name.label }}
+      </label>
+      <div>
+        <input name='{{ form.first_name.html_name }}' id='{{ form.first_name.id_for_label }}'
+            class='settings-input {% if form.first_name.errors %}error{% endif %}'
+            {% if form.first_name.value %}value='{{ form.first_name.value }}'{% endif %}
+            onkeydown='removeError(this);'
+            placeholder='{% trans "Elon" %}' required/>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.first_name.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <label for='{{ form.last_name.id_for_label }}' class='settings-label'>
+        {{ form.last_name.label }}
+      </label>
+      <div>
+        <input name='{{ form.last_name.html_name }}' id='{{ form.last_name.id_for_label }}'
+            class='settings-input {% if form.last_name.errors %}error{% endif %}'
+            {% if form.last_name.value %}value='{{ form.last_name.value }}'{% endif %}
+            onkeydown='removeError(this);'
+            placeholder='{% trans "Musk" %}' required/>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.last_name.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      <label for='{{ form.about_me.id_for_label }}' class='settings-label'>{{ form.about_me.label }}</label>
+      <div>
+        <textarea name='{{ form.about_me.html_name }}' id='{{ form.about_me.id_for_label }}'
+            class='settings-input {% if form.about_me.errors %}error{% endif %}'
+            onkeydown='removeError(this);'
+            placeholder='Hello I am Elon Musk, founder and CEO of Tesla'
+            rows='5'
+            >{% if form.about_me.value %}{{ form.about_me.value }}{% endif %}</textarea>
+      </div>
+      <div class='mb-4 text-red-400'>
+        {% for error in form.about_me.errors %}
+          <div class='text-sm mt-1'>
+            {{ error }}
+          </div>
+        {% endfor %}
+      </div>
+      {% csrf_token %}
+      <button id='saveChanges' class='button button-md button-primary-darker w-full'>
+        {% trans 'Save changes' %}
+      </button>
+    </form>
+  </div>
+  <script src='{% static "vendors/compressorjs/compressor.min.js" %}'></script>
+  <script src='{% static "vendors/cropperjs/cropper.js" %}'></script>
+  <script>
+    const dropZoneBanner = document.getElementById('dropZoneBanner');
+    const bannerUpload = document.getElementById('{{ form.banner.id_for_label }}');
+    const bannerClear = document.getElementById('{{ form.banner.id_for_label }}-clear');
+    const bannerImg = document.getElementById('bannerDropImage');
+    const dropZoneProfilePicture = document.getElementById('dropZoneProfilePicture');
+    const profilePictureClear = document.getElementById('{{ form.profile_picture.id_for_label }}-clear');
+    const profilePictureUpload = document.getElementById('{{ form.profile_picture.id_for_label }}');
+    const profilePictureImg = document.getElementById('profilePictureImage');
+    const profilePictureOverlay = document.getElementById('overlayProfilePicture');
+    const cropperImage = document.getElementById('cropperImage');
+    let cropper;
+		function setProfilePicture() {
+      cropper.getCroppedCanvas().toBlob((blob) => {
+				const canvas = document.createElement('canvas');
+				canvas.width = '480';
+				canvas.height = '480';
+				canvas.style.visibility = 'hidden';
+				let img = new Image();
+				img.onload = () => {
+					canvas.getContext('2d').drawImage(img, 0, 0, 480, 480);
+					canvas.toBlob((blob) => {
+						// Now we have a `blob` containing webp data
+						// Use the file rename trick to turn it back into a file
+						const myImage = new File([blob], 'profile_image_{{ request.user.email }}.webp', { type: blob.type });
+						new Compressor(myImage, {
+							resize: 'contain',
+							quality: 0.8,
+							// The compression process is asynchronous,
+							// which means you have to access the `result` in the `success` hook function.
+							success(result) {
+								let file = new File(
+									[result],
+									// 'profile_image_{{ request.user.email }}.webp',
+									result.name,
+									{type:'image/webp', lastModified:new Date().getTime()}
+								);
+								let container = new DataTransfer();
+								container.items.add(file);
+								profilePictureUpload.files = container.files;
+								profilePictureImg.src = URL.createObjectURL(blob);
+							},
+							error(err) {
+								alert(err.message);
+							},
+						});
+						// const myImage = new File([blob], 'my-new-name.webp', { type: blob.type });
+					}, 'image/webp');
+				}
+				img.src = URL.createObjectURL(blob);
+			});
+      cropper.destroy();
+    }
+    function showProfilePictureOverlay() {
+      profilePictureOverlay.classList.remove('hidden');
+    }
+    function hideProfilePictureOverlay() {
+      profilePictureOverlay.classList.add('hidden');
+      cropper.destroy();
+    }
+    function removeProfilePicture() {
+      profilePictureUpload.value = '';
+      profilePictureClear.checked = true;
+      profilePictureImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    }
+    function removeBanner() {
+      bannerUpload.value = '';
+      bannerClear.checked = true;
+      bannerImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    }
+    dropZoneBanner.addEventListener('click', () => bannerUpload.click());
+    dropZoneBanner.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+    bannerUpload.addEventListener('change', bannerUploadChange);
+    function bannerUploadChange(e) {
+      const clickFile = this.files[0];
+      if (clickFile) {
+        const reader = new FileReader();
+        reader.readAsDataURL(clickFile);
+        reader.onloadend = function () {
+        	e.preventDefault()
+					let img = new Image();
+					img.onload = () => {
+						const canvas = document.createElement('canvas');
+						canvas.width = img.width;
+						canvas.height =  img.height;
+						canvas.style.visibility = 'hidden';
+						canvas.getContext('2d').drawImage(img, 0, 0);
+						canvas.toBlob((blob) => {
+							// Now we have a `blob` containing webp data
+							// Use the file rename trick to turn it back into a file
+							const filename = 'banner_image_{{ request.user.email }}.webp';
+							const myImage = new File([blob], filename, { type: blob.type });
+							new Compressor(myImage, {
+								resize: 'contain',
+								quality: 0.8,
+								// The compression process is asynchronous,
+								// which means you have to access the `result` in the `success` hook function.
+								success(result) {
+									let file = new File(
+										[result],
+										// 'profile_image_{{ request.user.email }}.webp',
+										result.name,
+										{type:'image/webp', lastModified:new Date().getTime()}
+									);
+									let container = new DataTransfer();
+									container.items.add(file);
+									bannerUpload.files = container.files;
+									bannerImg.src = URL.createObjectURL(blob);
+									bannerImg.alt = filename;
+								},
+								error(err) {
+									alert(err.message);
+								},
+							});
+							// const myImage = new File([blob], 'my-new-name.webp', { type: blob.type });
+						}, 'image/webp');
+					}
+          img.src = reader.result;
+        }
+      }
+    }
+    function dropZoneBannerDrop(e) {
+      e.preventDefault();
+      let file = e.dataTransfer.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+			reader.onloadend = function () {
+				e.preventDefault()
+				let img = new Image();
+				img.onload = () => {
+					const canvas = document.createElement('canvas');
+					canvas.width = img.width;
+					canvas.height =  img.height;
+					canvas.style.visibility = 'hidden';
+					canvas.getContext('2d').drawImage(img, 0, 0);
+					canvas.toBlob((blob) => {
+						// Now we have a `blob` containing webp data
+						// Use the file rename trick to turn it back into a file
+						const filename = 'banner_image_{{ request.user.email }}.webp';
+						const myImage = new File([blob], filename, { type: blob.type });
+						new Compressor(myImage, {
+							resize: 'contain',
+							quality: 0.8,
+							// The compression process is asynchronous,
+							// which means you have to access the `result` in the `success` hook function.
+							success(result) {
+								let file = new File(
+									[result],
+									// 'profile_image_{{ request.user.email }}.webp',
+									result.name,
+									{type:'image/webp', lastModified:new Date().getTime()}
+								);
+								let container = new DataTransfer();
+								container.items.add(file);
+								bannerUpload.files = container.files;
+								bannerImg.src = URL.createObjectURL(blob);
+								bannerImg.alt = filename;
+							},
+							error(err) {
+								alert(err.message);
+							},
+						});
+						// const myImage = new File([blob], 'my-new-name.webp', { type: blob.type });
+					}, 'image/webp');
+				}
+				img.src = reader.result;
+			}
+		}
+    dropZoneBanner.addEventListener('drop', dropZoneBannerDrop);
+    dropZoneProfilePicture.addEventListener('click', () => profilePictureUpload.click());
+    dropZoneProfilePicture.addEventListener('dragover', (e) => {e.preventDefault();});
+    profilePictureUpload.addEventListener('change', profilePictureUploadChange)
+    function profilePictureUploadChange(e) {
+      const clickFile = this.files[0];
+      if (clickFile) {
+        const reader = new FileReader();
+        reader.readAsDataURL(clickFile);
+        reader.onloadend = function () {
+          cropperImage.src = reader.result;
+          cropperImage.alt = clickFile.name;
+        }
+        setTimeout(() => {
+          cropper = new Cropper(cropperImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            scalable: false,
+          });
+        }, 500);
+        showProfilePictureOverlay();
+      }
+    }
+    dropZoneProfilePicture.addEventListener('drop', dropZoneProfilePictureDrop);
+    function dropZoneProfilePictureDrop(e) {
+      e.preventDefault();
+      let file = e.dataTransfer.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = function () {
+        e.preventDefault()
+        cropperImage.src = reader.result;
+        cropperImage.alt = file.name;
+      }
+      setTimeout(() => {
+        cropper = new Cropper(cropperImage, {
+          aspectRatio: 1,
+          viewMode: 1,
+          scalable: false,
+        });
+      }, 500);
+      showProfilePictureOverlay();
+    }
+		const saveChanges = document.getElementById('saveChanges');
+	</script>
+{% endblock %}
